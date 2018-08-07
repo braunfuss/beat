@@ -157,7 +157,7 @@ in a speed-up of the numpy related calculations by a factor of at least 3.:</p>
 </div>
 <p>Per default, the current developers branch is being installed. We want to
 install one of the most recent stable branches:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="n">v1</span><span class="o">.</span><span class="mf">11.1</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="n">v1</span><span class="o">.</span><span class="mf">14.1</span>
 </pre></div>
 </div>
 <p>Next, create a configuration file <cite>site.cfg</cite> that tells numpy where to find the
@@ -370,7 +370,7 @@ can be found on the respective websites:</p>
 <h3>pymc3<a class="headerlink" href="#pymc3" title="Permalink to this headline">¶</a></h3>
 <p>Pymc3 is a framework that provides various optimization algorithms allows and
 allows to build Bayesian models. For the last stable release:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">pymc3</span><span class="o">==</span><span class="mf">3.2</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">pymc3</span><span class="o">==</span><span class="mf">3.4</span><span class="o">.</span><span class="mi">1</span>
 </pre></div>
 </div>
 <p>For the bleeding edge:</p>
@@ -389,6 +389,15 @@ framework to efficiently store and access Greens Functions.:</p>
 <span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">pyrocko</span><span class="o">/</span><span class="n">pyrocko</span><span class="o">.</span><span class="n">git</span> <span class="n">pyrocko</span>
 <span class="n">cd</span> <span class="n">pyrocko</span>
 <span class="n">sudo</span> <span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="openmpi">
+<h3>OpenMPI<a class="headerlink" href="#openmpi" title="Permalink to this headline">¶</a></h3>
+<p>For the Parallel Tempering algorithm OpenMPI and the python
+bindings are required.:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">libopenmpi</span><span class="o">-</span><span class="n">dev</span>
+<span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">mpi4py</span>
 </pre></div>
 </div>
 </div>
@@ -455,6 +464,7 @@ The original codes are packaged for windows and can be found
 <li class="toctree-l2"><a class="reference internal" href="#main-packages">Main Packages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#pymc3">pymc3</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pyrocko">Pyrocko</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openmpi">OpenMPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pyproj">Pyproj</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#beat">BEAT</a></li>
 </ul>

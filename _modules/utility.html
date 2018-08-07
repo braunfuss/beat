@@ -121,6 +121,27 @@
 <span class="n">km</span> <span class="o">=</span> <span class="mf">1000.</span>
 
 
+<div class="viewcode-block" id="Counter"><a class="viewcode-back" href="../api.html#utility.Counter">[docs]</a><span class="k">class</span> <span class="nc">Counter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Counts calls of types with string_ids. Repeated calls with the same</span>
+<span class="sd">    string id increase the count.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">string</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">[</span><span class="n">string</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">[</span><span class="n">string</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">[</span><span class="n">string</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span></div>
+
+
 <div class="viewcode-block" id="ListArrayOrdering"><a class="viewcode-back" href="../api.html#utility.ListArrayOrdering">[docs]</a><span class="k">class</span> <span class="nc">ListArrayOrdering</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An ordering for a list to an array space. Takes also non theano.tensors.</span>
@@ -147,12 +168,32 @@
                 <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;numpy&#39;</span>
 
             <span class="n">slc</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">dim</span> <span class="o">+</span> <span class="n">array</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">vmap</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DataMap</span><span class="p">(</span>
-                <span class="n">count</span><span class="p">,</span> <span class="n">slc</span><span class="p">,</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">array</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+            <span class="n">vm</span> <span class="o">=</span> <span class="n">DataMap</span><span class="p">(</span>
+                <span class="n">count</span><span class="p">,</span> <span class="n">slc</span><span class="p">,</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">array</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vmap</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vm</span><span class="p">)</span>
             <span class="n">dim</span> <span class="o">+=</span> <span class="n">array</span><span class="o">.</span><span class="n">size</span>
             <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">dim</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keys</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vmap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="s1">&#39;Variable &quot;</span><span class="si">%s</span><span class="s1">&quot; is not in the mapping!&#39;</span>
+                <span class="s1">&#39; Mapped Variables: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">list2string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keys</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">vmap</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">vmap</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vmap</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keys</span></div>
 
 
 <div class="viewcode-block" id="ListToArrayBijection"><a class="viewcode-back" href="../api.html#utility.ListToArrayBijection">[docs]</a><span class="k">class</span> <span class="nc">ListToArrayBijection</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -166,13 +207,17 @@
 <span class="sd">        of :class:`numpy.ndarray`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ordering</span><span class="p">,</span> <span class="n">list_arrays</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ordering</span><span class="p">,</span> <span class="n">list_arrays</span><span class="p">,</span> <span class="n">blacklist</span><span class="o">=</span><span class="p">[]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ordering</span> <span class="o">=</span> <span class="n">ordering</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">list_arrays</span> <span class="o">=</span> <span class="n">list_arrays</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dummy</span> <span class="o">=</span> <span class="o">-</span><span class="mf">9.e40</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blacklist</span> <span class="o">=</span> <span class="n">blacklist</span>
 
-<div class="viewcode-block" id="ListToArrayBijection.dmap"><a class="viewcode-back" href="../api.html#utility.ListToArrayBijection.dmap">[docs]</a>    <span class="k">def</span> <span class="nf">dmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpt</span><span class="p">):</span>
+<div class="viewcode-block" id="ListToArrayBijection.d2l"><a class="viewcode-back" href="../api.html#utility.ListToArrayBijection.d2l">[docs]</a>    <span class="k">def</span> <span class="nf">d2l</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpt</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Maps values from dict space to List space</span>
+<span class="sd">        If variable expected from ordering is not in point</span>
+<span class="sd">        it is filled with a low dummy value -999999.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -183,14 +228,20 @@
 <span class="sd">        -------</span>
 <span class="sd">        point</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">a_list</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list_arrays</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">list_ind</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordering</span><span class="o">.</span><span class="n">vmap</span><span class="p">:</span>
-            <span class="n">a_list</span><span class="p">[</span><span class="n">list_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">dpt</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">list_ind</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">shp</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordering</span><span class="o">.</span><span class="n">vmap</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">a_list</span><span class="p">[</span><span class="n">list_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">dpt</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="c1"># Needed for initialisation of chain_l_point in Metropolis</span>
+                <span class="n">a_list</span><span class="p">[</span><span class="n">list_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span>
+                    <span class="n">num</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shp</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dummy</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">a_list</span></div>
 
-<div class="viewcode-block" id="ListToArrayBijection.drmap"><a class="viewcode-back" href="../api.html#utility.ListToArrayBijection.drmap">[docs]</a>    <span class="k">def</span> <span class="nf">drmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a_list</span><span class="p">):</span>
+<div class="viewcode-block" id="ListToArrayBijection.l2d"><a class="viewcode-back" href="../api.html#utility.ListToArrayBijection.l2d">[docs]</a>    <span class="k">def</span> <span class="nf">l2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a_list</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Maps values from List space to dict space</span>
 
@@ -206,11 +257,12 @@
         <span class="n">point</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">for</span> <span class="n">list_ind</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordering</span><span class="o">.</span><span class="n">vmap</span><span class="p">:</span>
-            <span class="n">point</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">a_list</span><span class="p">[</span><span class="n">list_ind</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blacklist</span><span class="p">:</span>
+                <span class="n">point</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">a_list</span><span class="p">[</span><span class="n">list_ind</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">point</span></div>
 
-<div class="viewcode-block" id="ListToArrayBijection.fmap"><a class="viewcode-back" href="../api.html#utility.ListToArrayBijection.fmap">[docs]</a>    <span class="k">def</span> <span class="nf">fmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_arrays</span><span class="p">):</span>
+<div class="viewcode-block" id="ListToArrayBijection.l2a"><a class="viewcode-back" href="../api.html#utility.ListToArrayBijection.l2a">[docs]</a>    <span class="k">def</span> <span class="nf">l2a</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_arrays</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Maps values from List space to array space</span>
 
@@ -250,7 +302,7 @@
             <span class="n">array</span><span class="p">[</span><span class="n">slc</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">list_arrays</span><span class="p">[</span><span class="n">list_ind</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">array</span></div>
 
-<div class="viewcode-block" id="ListToArrayBijection.rmap"><a class="viewcode-back" href="../api.html#utility.ListToArrayBijection.rmap">[docs]</a>    <span class="k">def</span> <span class="nf">rmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">):</span>
+<div class="viewcode-block" id="ListToArrayBijection.a2l"><a class="viewcode-back" href="../api.html#utility.ListToArrayBijection.a2l">[docs]</a>    <span class="k">def</span> <span class="nf">a2l</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Maps value from array space to List space</span>
 <span class="sd">        Inverse operation of fmap.</span>
@@ -268,8 +320,12 @@
         <span class="n">a_list</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list_arrays</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">list_ind</span><span class="p">,</span> <span class="n">slc</span><span class="p">,</span> <span class="n">shp</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordering</span><span class="o">.</span><span class="n">vmap</span><span class="p">:</span>
-            <span class="n">a_list</span><span class="p">[</span><span class="n">list_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span>
-                                        <span class="n">array</span><span class="p">)[</span><span class="n">slc</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shp</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">a_list</span><span class="p">[</span><span class="n">list_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span>
+                    <span class="n">array</span><span class="p">)[</span><span class="n">slc</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shp</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>  <span class="c1"># variable does not exist in array use dummy</span>
+                <span class="n">a_list</span><span class="p">[</span><span class="n">list_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span>
+                    <span class="n">num</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shp</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dummy</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">a_list</span></div>
 
@@ -348,7 +404,8 @@
             <span class="n">weeded_input_rvs</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">weed</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Variables are not of proper format: </span><span class="si">%s</span><span class="s1"> !&#39;</span> <span class="o">%</span> \
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s1">&#39;Variables are not of proper format: </span><span class="si">%s</span><span class="s1"> !&#39;</span> <span class="o">%</span>
                 <span class="n">weeded_input_rvs</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">weeded_input_rvs</span></div>
@@ -421,7 +478,7 @@
 <div class="viewcode-block" id="weed_targets"><a class="viewcode-back" href="../api.html#utility.weed_targets">[docs]</a><span class="k">def</span> <span class="nf">weed_targets</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">stations</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Throw out targets belonging to stations that are not in the</span>
-<span class="sd">    stations list. Keeps list orders!</span>
+<span class="sd">    stations list. Keeps list orders and returns new list!</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -462,8 +519,8 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">tr</span><span class="o">.</span><span class="n">downsample_to</span><span class="p">(</span><span class="n">deltat</span><span class="p">,</span> <span class="n">snap</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_upsample_max</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">util</span><span class="o">.</span><span class="n">UnavailableDecimation</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Cannot downsample </span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                                                            <span class="n">tr</span><span class="o">.</span><span class="n">nslc_id</span> <span class="o">+</span> <span class="p">(</span><span class="n">e</span><span class="p">,)))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s1">&#39;Cannot downsample </span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">nslc_id</span> <span class="o">+</span> <span class="p">(</span><span class="n">e</span><span class="p">,)))</span>
                 <span class="k">continue</span></div>
 
 
@@ -599,11 +656,10 @@
 
 <div class="viewcode-block" id="join_points"><a class="viewcode-back" href="../api.html#utility.join_points">[docs]</a><span class="k">def</span> <span class="nf">join_points</span><span class="p">(</span><span class="n">ldicts</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Join list of dicts into one dict with concatenating </span>
+<span class="sd">    Join list of dicts into one dict with concatenating</span>
 <span class="sd">    values of keys that are present in multiple dicts.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
-    <span class="n">npoints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ldicts</span><span class="p">)</span>
+
     <span class="n">keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">k</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ldicts</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">()])</span>
 
     <span class="n">jpoint</span> <span class="o">=</span> <span class="p">{}</span>
@@ -611,7 +667,6 @@
         <span class="n">jvar</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ldicts</span><span class="p">:</span>
             <span class="n">jvar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
-
 
         <span class="n">jpoint</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">jvar</span><span class="p">)</span>
 
@@ -835,7 +890,7 @@
     <span class="k">return</span> <span class="n">num</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
         <span class="p">[</span><span class="n">num</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">dip</span> <span class="o">*</span> <span class="n">d2r</span><span class="p">)</span> <span class="o">*</span> <span class="n">num</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">strike</span> <span class="o">*</span> <span class="n">d2r</span><span class="p">),</span>
          <span class="o">-</span><span class="n">num</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">dip</span> <span class="o">*</span> <span class="n">d2r</span><span class="p">)</span> <span class="o">*</span> <span class="n">num</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">strike</span> <span class="o">*</span> <span class="n">d2r</span><span class="p">),</span>
-          <span class="n">num</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">dip</span> <span class="o">*</span> <span class="n">d2r</span><span class="p">)])</span></div>
+         <span class="n">num</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">dip</span> <span class="o">*</span> <span class="n">d2r</span><span class="p">)])</span></div>
 
 
 <span class="k">def</span> <span class="nf">strike_vector</span><span class="p">(</span><span class="n">strike</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;ENZ&#39;</span><span class="p">):</span>
@@ -975,8 +1030,9 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">num</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">num</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Cov_pv not positive definite!&#39;</span>
-                    <span class="s1">&#39; Finding nearest psd matrix...&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s1">&#39;Cov_pv not positive definite!&#39;</span>
+            <span class="s1">&#39; Finding nearest psd matrix...&#39;</span><span class="p">)</span>
         <span class="n">cov</span> <span class="o">=</span> <span class="n">repair_covariance</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">cov</span></div>
@@ -1062,7 +1118,7 @@
     <span class="n">eigval</span><span class="p">,</span> <span class="n">eigvec</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="n">val</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">eigval</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span>
     <span class="n">vec</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">eigvec</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">vec</span> <span class="o">*</span> <span class="n">num</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">*</span> <span class="n">vec</span><span class="o">.</span><span class="n">T</span></div>
+    <span class="k">return</span> <span class="n">num</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vec</span> <span class="o">*</span> <span class="n">num</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">*</span> <span class="n">vec</span><span class="o">.</span><span class="n">T</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="list2string"><a class="viewcode-back" href="../api.html#utility.list2string">[docs]</a><span class="k">def</span> <span class="nf">list2string</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
@@ -1292,7 +1348,7 @@
         <span class="n">read_nd_model_str</span><span class="p">(</span>
             <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;[\[\]]&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">num</span><span class="o">.</span><span class="n">array2string</span><span class="p">(</span>
                 <span class="n">b</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-                    <span class="n">formatter</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;float_kind&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">}))))</span></div>
+                <span class="n">formatter</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;float_kind&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">}))))</span></div>
 
 
 <div class="viewcode-block" id="list_to_str"><a class="viewcode-back" href="../api.html#utility.list_to_str">[docs]</a><span class="k">def</span> <span class="nf">list_to_str</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
@@ -1346,49 +1402,58 @@
     <span class="k">return</span> <span class="n">num</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">tmp</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> <span class="n">dn</span> <span class="o">+</span> <span class="n">n1</span></div>
 
 
-<div class="viewcode-block" id="get_rotation_matrix"><a class="viewcode-back" href="../api.html#utility.get_rotation_matrix">[docs]</a><span class="k">def</span> <span class="nf">get_rotation_matrix</span><span class="p">(</span><span class="n">axis</span><span class="p">):</span>
+<div class="viewcode-block" id="get_rotation_matrix"><a class="viewcode-back" href="../api.html#utility.get_rotation_matrix">[docs]</a><span class="k">def</span> <span class="nf">get_rotation_matrix</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a function for 3-d rotation matrix for a specified axis.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    axis : str or list of str</span>
+<span class="sd">    axes : str or list of str</span>
 <span class="sd">        x, y or z for the axis</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    func that takes an angle</span>
+<span class="sd">    func that takes an angle [rad]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ax_avail</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ax_avail</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s1">&#39;Rotation axis </span><span class="si">%s</span><span class="s1"> not supported!&#39;</span>
+                <span class="s1">&#39; Available axes: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">list2string</span><span class="p">(</span><span class="n">ax_avail</span><span class="p">)))</span>
 
     <span class="k">def</span> <span class="nf">rotx</span><span class="p">(</span><span class="n">angle</span><span class="p">):</span>
-        <span class="n">angle</span> <span class="o">*=</span> <span class="n">num</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.</span>
+        <span class="n">cos_angle</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+        <span class="n">sin_angle</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">num</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
             <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
-             <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">num</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="o">-</span><span class="n">num</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)],</span>
-             <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">num</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="o">-</span><span class="n">num</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)]])</span>
+             <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">cos_angle</span><span class="p">,</span> <span class="o">-</span><span class="n">sin_angle</span><span class="p">],</span>
+             <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">sin_angle</span><span class="p">,</span> <span class="n">cos_angle</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">roty</span><span class="p">(</span><span class="n">angle</span><span class="p">):</span>
-        <span class="n">angle</span> <span class="o">*=</span> <span class="n">num</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.</span>
+        <span class="n">cos_angle</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+        <span class="n">sin_angle</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">num</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-            <span class="p">[[</span><span class="n">num</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">num</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)],</span>
+            <span class="p">[[</span><span class="n">cos_angle</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sin_angle</span><span class="p">],</span>
              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
-             <span class="p">[</span><span class="o">-</span><span class="n">num</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">num</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)]])</span>
+             <span class="p">[</span><span class="o">-</span><span class="n">sin_angle</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">cos_angle</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">rotz</span><span class="p">(</span><span class="n">angle</span><span class="p">):</span>
-        <span class="n">angle</span> <span class="o">*=</span> <span class="n">num</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.</span>
+        <span class="n">cos_angle</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+        <span class="n">sin_angle</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">num</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-            <span class="p">[[</span><span class="n">num</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="o">-</span><span class="n">num</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="mi">0</span><span class="p">],</span>
-             <span class="p">[</span><span class="n">num</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="n">num</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="mi">0</span><span class="p">],</span>
-             <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+            <span class="p">[[</span><span class="n">cos_angle</span><span class="p">,</span> <span class="o">-</span><span class="n">sin_angle</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+             <span class="p">[</span><span class="n">sin_angle</span><span class="p">,</span> <span class="n">cos_angle</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+             <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
 
     <span class="n">R</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">rotx</span><span class="p">,</span>
          <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">roty</span><span class="p">,</span>
          <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="n">rotz</span><span class="p">}</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">R</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">axis</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">R</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">R</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">R</span><span class="p">[</span><span class="n">axes</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;axis has to be either string or list of strings!&#39;</span><span class="p">)</span></div>
 
