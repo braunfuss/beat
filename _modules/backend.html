@@ -765,7 +765,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        dictionary of point values</span>
+<span class="sd">        dict : of point values</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ipoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="o">.</span><span class="n">point</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_straces</span><span class="p">[</span><span class="n">ipoint</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">point</span><span class="p">(</span><span class="n">ipoint</span><span class="p">[</span><span class="s1">&#39;k_idx&#39;</span><span class="p">])</span></div>
@@ -856,8 +856,8 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return stage number of stage that has been sampled before the final stage.</span>
 
-<span class="sd">    Paramaeters</span>
-<span class="sd">    -----------</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
 <span class="sd">    homedir : str</span>
 <span class="sd">        Directory to the sampled stage results</span>
 

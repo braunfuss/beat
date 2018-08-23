@@ -1987,7 +1987,8 @@
     <span class="k">return</span> <span class="n">store</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">wavename</span><span class="p">,</span> <span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">dist</span><span class="p">))</span> <span class="o">+</span> <span class="n">source</span><span class="o">.</span><span class="n">time</span></div>
 
 
-<div class="viewcode-block" id="get_phase_taperer"><a class="viewcode-back" href="../api.html#heart.get_phase_taperer">[docs]</a><span class="k">def</span> <span class="nf">get_phase_taperer</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">wavename</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">arrival_taper</span><span class="p">):</span>
+<div class="viewcode-block" id="get_phase_taperer"><a class="viewcode-back" href="../api.html#heart.get_phase_taperer">[docs]</a><span class="k">def</span> <span class="nf">get_phase_taperer</span><span class="p">(</span>
+        <span class="n">engine</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">wavename</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">arrival_taper</span><span class="p">,</span> <span class="n">arrival_time</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create phase taperer according to synthetic travel times from</span>
 <span class="sd">    source- target pair and taper return :class:`pyrocko.trace.CosTaper`</span>
@@ -2003,14 +2004,15 @@
 <span class="sd">        of the tabulated phase that determines the phase arrival</span>
 <span class="sd">    target : :class:`pyrocko.gf.seismosizer.Target`</span>
 <span class="sd">    arrival_taper : :class:`ArrivalTaper`</span>
+<span class="sd">    arrival_time : shift on arrival time (optional)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    :class:`pyrocko.trace.CosTaper`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">arrival_time</span> <span class="o">=</span> <span class="n">get_phase_arrival_time</span><span class="p">(</span>
-        <span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">wavename</span><span class="o">=</span><span class="n">wavename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">arrival_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">arrival_time</span> <span class="o">=</span> <span class="n">get_phase_arrival_time</span><span class="p">(</span>
+            <span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">wavename</span><span class="o">=</span><span class="n">wavename</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">arrival_taper</span><span class="o">.</span><span class="n">get_pyrocko_taper</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">arrival_time</span><span class="p">))</span></div>
 
@@ -2034,6 +2036,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_station_correction_reference</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span>
             <span class="n">station_correction_idxs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">station_correction_idxs</span> <span class="o">=</span> <span class="n">station_correction_idxs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prepared_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_arrival_times</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_trace_wavenames</span><span class="p">()</span>
@@ -2135,7 +2139,45 @@
             <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">dtargets</span><span class="p">[</span><span class="n">cha</span><span class="p">]:</span>
                 <span class="n">weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">t2i</span><span class="p">[</span><span class="n">target</span><span class="p">]])</span>
 
-        <span class="k">return</span> <span class="n">weights</span></div>
+        <span class="k">return</span> <span class="n">weights</span>
+
+<div class="viewcode-block" id="WaveformMapping.prepare_data"><a class="viewcode-back" href="../api.html#heart.WaveformMapping.prepare_data">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">outmode</span><span class="o">=</span><span class="s1">&#39;array&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Taper, filter data traces according to given reference event.</span>
+<span class="sd">        Traces are concatenated to one single array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepared_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s1">&#39;Overwriting observed data windows in &quot;</span><span class="si">%s</span><span class="s1">&quot;!&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;config&#39;</span><span class="p">):</span>
+            <span class="n">arrival_times</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_t</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tconfig</span><span class="o">.</span><span class="n">floatX</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">):</span>
+                <span class="n">arrival_times</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_phase_arrival_time</span><span class="p">(</span>
+                    <span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
+                    <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">wavename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_prepared_data</span> <span class="o">=</span> <span class="n">taper_filter_traces</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">,</span>
+                <span class="n">arrival_taper</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_taper</span><span class="p">,</span>
+                <span class="n">filterer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filterer</span><span class="p">,</span>
+                <span class="n">arrival_times</span><span class="o">=</span><span class="n">arrival_times</span><span class="p">,</span>
+                <span class="n">outmode</span><span class="o">=</span><span class="n">outmode</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_arrival_times</span> <span class="o">=</span> <span class="n">arrival_times</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Wavemap needs configuration!&#39;</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shared_data_array</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepared_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Data array is not initialized&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prepared_data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Data got initialized as pyrocko traces, need array!&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">shared</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_prepared_data</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_data&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">borrow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 <span class="k">class</span> <span class="nc">CollectionError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -2232,7 +2274,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns array of indexes to problem stations,</span>
 
-<span class="sd">        Paremeters</span>
+<span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        targets : list</span>
 <span class="sd">            containing :class:`DynamicTarget` Objects</span>
@@ -2378,8 +2420,8 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initialise datahandler.</span>
 
-<span class="sd">    Parameter</span>
-<span class="sd">    ---------</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
 <span class="sd">    seismic_config : :class:`config.SeismicConfig`</span>
 <span class="sd">    seismic_data_path : str</span>
 <span class="sd">        absolute path to the directory of the seismic data</span>
@@ -2419,8 +2461,8 @@
 <span class="sd">    relation to the seismic Phase of interest and allows individual</span>
 <span class="sd">    specificiations.</span>
 
-<span class="sd">    Parameter</span>
-<span class="sd">    ---------</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
 <span class="sd">    waveformfit_config : :class:`config.WaveformFitConfig`</span>
 <span class="sd">    datahandler : :class:`DataWaveformCollection`</span>
 <span class="sd">    event : :class:`pyrocko.model.Event`</span>
@@ -2484,7 +2526,8 @@
 <div class="viewcode-block" id="seis_synthetics"><a class="viewcode-back" href="../api.html#heart.seis_synthetics">[docs]</a><span class="k">def</span> <span class="nf">seis_synthetics</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">sources</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">arrival_taper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">wavename</span><span class="o">=</span><span class="s1">&#39;any_P&#39;</span><span class="p">,</span> <span class="n">filterer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reference_taperer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">outmode</span><span class="o">=</span><span class="s1">&#39;array&#39;</span><span class="p">,</span>
-                    <span class="n">pre_stack_cut</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">taper_tolerance_factor</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+                    <span class="n">pre_stack_cut</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">taper_tolerance_factor</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+                    <span class="n">arrival_times</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate synthetic seismograms of combination of targets and sources,</span>
 <span class="sd">    filtering and tapering afterwards (filterer)</span>
@@ -2504,7 +2547,8 @@
 <span class="sd">        of the tabulated phase that determines the phase arrival</span>
 <span class="sd">    filterer : :class:`Filterer`</span>
 <span class="sd">    reference_taperer : :class:`ArrivalTaper`</span>
-<span class="sd">        if set all the traces are tapered with the specifications of this Taper</span>
+<span class="sd">        if set all the traces are tapered with the specifications of this</span>
+<span class="sd">        Taper</span>
 <span class="sd">    plot : boolean</span>
 <span class="sd">        flag for looking at traces</span>
 <span class="sd">    nprocs : int</span>
@@ -2519,7 +2563,8 @@
 <span class="sd">        taper</span>
 <span class="sd">    taper_tolerance_factor : float</span>
 <span class="sd">        tolerance to chop traces around taper.a and taper.d</span>
-
+<span class="sd">    arrival_times : None or :class:`numpy.NdArray`</span>
+<span class="sd">        of phase to apply taper, if None theoretic arrival of ray tracing used</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -2534,9 +2579,13 @@
             <span class="s1">&#39;Outmode &quot;</span><span class="si">%s</span><span class="s1">&quot; not available! Available: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
                 <span class="n">outmode</span><span class="p">,</span> <span class="n">utility</span><span class="o">.</span><span class="n">list2string</span><span class="p">(</span><span class="n">stackmodes</span><span class="p">)))</span>
 
+    <span class="k">if</span> <span class="n">arrival_times</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">arrival_times</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tconfig</span><span class="o">.</span><span class="n">floatX</span><span class="p">)</span>
+        <span class="n">arrival_times</span><span class="p">[:]</span> <span class="o">=</span> <span class="kc">None</span>
+
     <span class="n">taperers</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">tapp</span> <span class="o">=</span> <span class="n">taperers</span><span class="o">.</span><span class="n">append</span>
-    <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">targets</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">arrival_taper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">reference_taperer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">tapp</span><span class="p">(</span><span class="n">get_phase_taperer</span><span class="p">(</span>
@@ -2544,7 +2593,8 @@
                     <span class="n">source</span><span class="o">=</span><span class="n">sources</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                     <span class="n">wavename</span><span class="o">=</span><span class="n">wavename</span><span class="p">,</span>
                     <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
-                    <span class="n">arrival_taper</span><span class="o">=</span><span class="n">arrival_taper</span><span class="p">))</span>
+                    <span class="n">arrival_taper</span><span class="o">=</span><span class="n">arrival_taper</span><span class="p">,</span>
+                    <span class="n">arrival_time</span><span class="o">=</span><span class="n">arrival_times</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">tapp</span><span class="p">(</span><span class="n">reference_taperer</span><span class="p">)</span>
 
@@ -2709,7 +2759,7 @@
 
 
 <div class="viewcode-block" id="taper_filter_traces"><a class="viewcode-back" href="../api.html#heart.taper_filter_traces">[docs]</a><span class="k">def</span> <span class="nf">taper_filter_traces</span><span class="p">(</span><span class="n">traces</span><span class="p">,</span> <span class="n">arrival_taper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filterer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                        <span class="n">tmins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">outmode</span><span class="o">=</span><span class="s1">&#39;array&#39;</span><span class="p">,</span>
+                        <span class="n">arrival_times</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">outmode</span><span class="o">=</span><span class="s1">&#39;array&#39;</span><span class="p">,</span>
                         <span class="n">taper_tolerance_factor</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Taper and filter data_traces according to given taper and filterers.</span>
@@ -2721,7 +2771,7 @@
 <span class="sd">        containing :class:`pyrocko.trace.Trace` objects</span>
 <span class="sd">    arrival_taper : :class:`ArrivalTaper`</span>
 <span class="sd">    filterer : :class:`Filterer`</span>
-<span class="sd">    tmins : list or:class:`numpy.ndarray`</span>
+<span class="sd">    arrival_times : list or:class:`numpy.ndarray`</span>
 <span class="sd">        containing the start times [s] since 1st.January 1970 to start</span>
 <span class="sd">        tapering</span>
 <span class="sd">    outmode : str</span>
@@ -2740,11 +2790,10 @@
     <span class="n">ctpp</span> <span class="o">=</span> <span class="n">cut_traces</span><span class="o">.</span><span class="n">append</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">traces</span><span class="p">):</span>
         <span class="n">cut_trace</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">cut_trace</span><span class="o">.</span><span class="n">set_location</span><span class="p">(</span><span class="s1">&#39;copy&#39;</span><span class="p">)</span>
+        <span class="n">cut_trace</span><span class="o">.</span><span class="n">set_location</span><span class="p">(</span><span class="s1">&#39;filt&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">arrival_taper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">taper</span> <span class="o">=</span> <span class="n">arrival_taper</span><span class="o">.</span><span class="n">get_pyrocko_taper</span><span class="p">(</span>
-                <span class="nb">float</span><span class="p">(</span><span class="n">tmins</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">num</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">arrival_taper</span><span class="o">.</span><span class="n">a</span><span class="p">)))</span>
+            <span class="n">taper</span> <span class="o">=</span> <span class="n">arrival_taper</span><span class="o">.</span><span class="n">get_pyrocko_taper</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">arrival_times</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">taper</span> <span class="o">=</span> <span class="kc">None</span>
 

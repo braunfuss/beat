@@ -254,8 +254,8 @@ Your seismic_config within the $project_directory/config_geometry.yaml should lo
 <div><img alt="_images/fomosto_traces_snuffler.png" src="_images/fomosto_traces_snuffler.png" />
 </div></blockquote>
 </div>
-<div class="section" id="sample-the-solution-space">
-<h3>Sample the solution space<a class="headerlink" href="#sample-the-solution-space" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="data-windowing-and-optimization-setup">
+<h3>Data windowing and optimization setup<a class="headerlink" href="#data-windowing-and-optimization-setup" title="Permalink to this headline">¶</a></h3>
 <p>Once we are confident that the GFs are reasonable we may continue to define the optimization specific setup variables.
 First of all we check again the WaveformFitConfig for the waves we want to optimize.
 In this case we want to optimize the whole waveform from P until the end of the surface waves.
@@ -279,8 +279,9 @@ So please make sure that in $project_directory/config_geometry.yaml under the Wa
     testvalue: [8.0]
 </pre></div>
 </div>
-<p>Of course, in a real case this would not be fixed.
-Also we may inspect the data:</p>
+<p>Of course, in a real case this would not be fixed.</p>
+<p>The specifications of the tapers, filters and channels that the user defined above determine which part of the data traces are used in the course of the optimization.
+We may inspect the raw data together with the processed data that is going to be used in the course of the optimization with</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">beat</span> <span class="n">check</span> <span class="n">FullMT</span> <span class="o">--</span><span class="n">what</span><span class="o">=</span><span class="s1">&#39;traces&#39;</span>
 </pre></div>
 </div>
@@ -289,10 +290,19 @@ A detailed tutorial about handeling the browser is given <a class="reference ext
 <blockquote>
 <div><img alt="_images/FullMT_data.png" src="_images/FullMT_data.png" />
 </div></blockquote>
-<p>For example you can also right click in the window and see a menu that pops up. There you can select sort the traces by distance or azimuth to get a better picture of the setup.
-Now that we checked the optimization setup we are good to go.</p>
-<p>Firstly, we fix the source parameters to some random value and only optimize for the hyperparameters (HPs).
-How many different random source parameters are choosen and the sampling repeated is determined by the hyper_sampler_config parameters ‘n_stages’ (default:5)</p>
+<p>To better sort the displayed traces and to inspect the processed data we may use snufflers display options.
+Please right click in the window and see a menu that pops up. There, please select: “Sort by Distance” to sort the traces by distance to get a better picture of the setup. To see, which traces actually belong to the same station and component, please open the menu again and select “Subsort by Network, Station, Channel (Grouped by Location)” and “Common Scale per Component”. To distinguish better between the overlapping traces please select as well “Color Traces” and deselect “Show Boxes”.
+Your display should look something like this.</p>
+<blockquote>
+<div><img alt="_images/FullMT_windowed.png" src="_images/FullMT_windowed.png" />
+</div></blockquote>
+<p>In red we see the raw data traces as stored under $project_directory/seismic_data.pkl; and in blue we see the processed data where the WaveformFitConfig parameters (see above) have been applied. The blue traces are going to be used in this form throughout the optimization. For this setup here we are good, but for future problems the user may now adjust the configuration and repeatedly check if the data windowing is satisfying. For example, the user may widen the arrival_taper times to make sure that a respective wave train is completely included in case it is cut at the taper boundary. Or in case of noisy or bad quality data a station may be completely excluded by putting its name in the “blacklist” parameter.</p>
+<p>Now that we checked the optimization setup we are good to go.</p>
+</div>
+<div class="section" id="sample-the-solution-space">
+<h3>Sample the solution space<a class="headerlink" href="#sample-the-solution-space" title="Permalink to this headline">¶</a></h3>
+<p>Firstly, we fix the source parameters to some random value and only optimize for the noise scaling or hyperparameters (HPs).
+How many different random source parameters are choosen and the sampling repeated is determined by the hyper_sampler_config parameters ‘n_chains’ (default:20). In case there are several CPUs available the ‘n_jobs’ parameter determines how many processes (Markov Chains) are sampled in paralell. You may want to increase that now! To start the sampling please run</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">beat</span> <span class="n">sample</span> <span class="n">FullMT</span> <span class="o">--</span><span class="n">hypers</span>
 </pre></div>
 </div>
@@ -302,15 +312,15 @@ the HPs parameter bounds show something like:</p>
   h_any_P_T: !beat.heart.Parameter
     name: h_any_P_T
     form: Uniform
-    lower: [-4.0]
-    upper: [5.0]
-    testvalue: [0.5]
+    lower: [-3.0]
+    upper: [3.0]
+    testvalue: [0.0]
   h_any_P_Z: !beat.heart.Parameter
     name: h_any_P_Z
     form: Uniform
-    lower: [-4.0]
-    upper: [5.0]
-    testvalue: [0.5]
+    lower: [-3.0]
+    upper: [2.0]
+    testvalue: [-0.5]
 </pre></div>
 </div>
 <p>At this point the bounds could be relaxed again as well by manually editing the configuration file, or the step could be entirely skipped.
@@ -379,30 +389,40 @@ Now that we redefined the starting point of the sampling algorithm we are good t
 </div>
 <div class="section" id="summarize-the-results">
 <h3>Summarize the results<a class="headerlink" href="#summarize-the-results" title="Permalink to this headline">¶</a></h3>
-<p>The following command will create a summary with the statistics of the posterior distribution expressed in quantiles.:</p>
+<p>The sampled chain results of the SMC sampler are stored in seperate files and have to be summarized.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Only for MomentTensor MTSource: The moment tensor components have to be normalized again with respect to the magnitude.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Only for SMC:
+All the chain_*.csv files under the $project_directory/geometry/stage_* directories can be problematic for
+the operation system, e.g. on Clusters. Once a stage finished sampling these can be also deleted by setting the ‘rm_flag’
+under the ‘SamplerConfig.parameters’. The program will ask again once for safety reasons if the files are really supposed to be deleted. Once they are gone, they are gone! Restarting the sampling from that stage (see above) wont be possible anymore.</p>
+</div>
+<p>To summarize all the stages of the SMC sampler please run the summarize command.:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">beat</span> <span class="n">summarize</span> <span class="n">FullMT</span>
 </pre></div>
 </div>
-<p>If you check the summary.txt file (path then also printed to the screen):</p>
+<p>To summarize only a specific stage please add the ‘stage_number’ option, e.g. the final stage -1:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">beat</span> <span class="n">summarize</span> <span class="n">FullMT</span> <span class="o">--</span><span class="n">stage_number</span><span class="o">=-</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>If the final stage is included in the stages to be summarized also a summary file with the posterior quantiles will be created.
+If you check the summary.txt file (path then also printed to the screen):</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>vi $project_directory/geometry/summary.txt
 </pre></div>
 </div>
-<p>For example for the ‘north_shift’ the true value is 20. The posterior pdf quantiles show:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">north_shift</span><span class="p">:</span>
-
-  <span class="n">Mean</span>             <span class="n">SD</span>               <span class="n">MC</span> <span class="n">Error</span>         <span class="mi">95</span><span class="o">%</span> <span class="n">HPD</span> <span class="n">interval</span>
-  <span class="o">-------------------------------------------------------------------</span>
-
-  <span class="mf">19.989</span>           <span class="mf">0.010</span>            <span class="mf">0.000</span>            <span class="p">[</span><span class="mf">19.972</span><span class="p">,</span> <span class="mf">20.012</span><span class="p">]</span>
-
-  <span class="n">Posterior</span> <span class="n">quantiles</span><span class="p">:</span>
-  <span class="mf">2.5</span>            <span class="mi">25</span>             <span class="mi">50</span>             <span class="mi">75</span>             <span class="mf">97.5</span>
-  <span class="o">|--------------|==============|==============|--------------|</span>
-
-  <span class="mf">19.969</span>         <span class="mf">19.982</span>         <span class="mf">19.990</span>         <span class="mf">19.996</span>         <span class="mf">20.010</span>
+<p>For example for the first 4 entries (mee, med, posterior likelihood, north-shift), the posterior pdf quantiles show:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>                         <span class="n">mean</span>        <span class="n">sd</span>  <span class="n">mc_error</span>       <span class="n">hpd_2</span><span class="o">.</span><span class="mi">5</span>      <span class="n">hpd_97</span><span class="o">.</span><span class="mi">5</span>
+<span class="n">mee__0</span>             <span class="o">-</span><span class="mf">0.756400</span>  <span class="mf">0.001749</span>  <span class="mf">0.000087</span>     <span class="o">-</span><span class="mf">0.759660</span>     <span class="o">-</span><span class="mf">0.752939</span>
+<span class="n">med__0</span>             <span class="o">-</span><span class="mf">0.256697</span>  <span class="mf">0.000531</span>  <span class="mf">0.000024</span>     <span class="o">-</span><span class="mf">0.257759</span>     <span class="o">-</span><span class="mf">0.255713</span>
+<span class="n">like__0</span>         <span class="mf">89855.787301</span>  <span class="mf">2.742033</span>  <span class="mf">0.155631</span>  <span class="mf">89849.756559</span>  <span class="mf">89859.893765</span>
+<span class="n">north_shift__0</span>     <span class="mf">19.989398</span>  <span class="mf">0.010010</span>  <span class="mf">0.000496</span>     <span class="mf">19.970455</span>     <span class="mf">20.008629</span>
 </pre></div>
 </div>
-<p>As this is a synthetic case with only little noise it is not particularly surprising to get such a steeply peaked distribution.</p>
+<p>As this is a synthetic case with only little noise it is not particularly surprising to get such steeply peaked distributions.</p>
 </div>
 <div class="section" id="plotting">
 <h3>Plotting<a class="headerlink" href="#plotting" title="Permalink to this headline">¶</a></h3>
@@ -412,23 +432,31 @@ To see the waveform fit of the posterior maximum likelihood solution. In the $be
 </pre></div>
 </div>
 <p>If it worked it will produce a pdf with several pages output for all the components for each station that have been used in the optimization.
-The black waveforms are the unfiltered data. Red are the best fitting synthetic traces. Light grey and light red are the filtered, untapered
-data and synthetic traces respectively. The red data trace below are the residual traces between data and synthetics.
+The black waveforms are the unfiltered data. Red are the best fitting synthetic traces. Light grey and light red are the filtered, untapered data and synthetic traces respectively. The red data trace below are the residual traces between data and synthetics.
 The Z-components from our stations should look something like this.</p>
 <blockquote>
 <div><img alt="_images/FullMT_waveforms_max.png" src="_images/FullMT_waveforms_max.png" />
 </div></blockquote>
+<p>The waveform fits for a specific point in the solution space may be produced by setting the testvalues
+in the Prior distributions of the config file. Here, these values got already set to the true solution. So we can compare if our best estimated source parameters are reasonable compared to the true ones.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">beat</span> <span class="n">plot</span> <span class="n">FullMT</span> <span class="n">waveform_fits</span>  <span class="o">--</span><span class="n">reference</span>
+</pre></div>
+</div>
+<p>Again looking at the Z-components of the traces shows that our estimate is almost identical to the true test value.</p>
+<blockquote>
+<div><img alt="_images/FullMT_waveforms_ref.png" src="_images/FullMT_waveforms_ref.png" />
+</div></blockquote>
 <p>The following command produces a ‘.png’ file with the final posterior distribution. In the $beat_models run:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">beat</span> <span class="n">plot</span> <span class="n">FullMT</span> <span class="n">stage_posteriors</span> <span class="o">--</span><span class="n">reference</span> <span class="o">--</span><span class="n">stage_number</span><span class="o">=-</span><span class="mi">2</span> <span class="o">--</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">beat</span> <span class="n">plot</span> <span class="n">FullMT</span> <span class="n">stage_posteriors</span> <span class="o">--</span><span class="n">reference</span> <span class="o">--</span><span class="n">stage_number</span><span class="o">=-</span><span class="mi">1</span> <span class="o">--</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span>
 </pre></div>
 </div>
 <p>It may look like this.</p>
 <blockquote>
-<div><img alt="_images/FullMT_stage_-2_max.png" src="_images/FullMT_stage_-2_max.png" />
+<div><img alt="_images/FullMT_stage_-1_max.png" src="_images/FullMT_stage_-1_max.png" />
 <p>The vertical black lines are the true values and the vertical red lines are the maximum likelihood values.
-We see that the true solution is not comprised within the posterior pdfs. This may have several reasons I will not go in to detail for now.</p>
+We see that the true solution is not comprised within the marginals of all parameters. This may have several reasons I will not go in to detail for now.</p>
 <p>To get an image of parameter correlations (including the true reference value in red) of moment tensor components, the location and the magnitude. In the $beat_models run:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">beat</span> <span class="n">plot</span> <span class="n">FullMT</span> <span class="n">correlation_hist</span> <span class="o">--</span><span class="n">reference</span> <span class="o">--</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span> <span class="o">--</span><span class="n">stage_number</span><span class="o">=-</span><span class="mi">2</span> <span class="o">--</span><span class="n">varnames</span><span class="o">=</span><span class="s1">&#39;mee, med, mdd, mnn, mnd, mne, north_shift, east_shift, magnitude&#39;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">beat</span> <span class="n">plot</span> <span class="n">FullMT</span> <span class="n">correlation_hist</span> <span class="o">--</span><span class="n">reference</span> <span class="o">--</span><span class="n">stage_number</span><span class="o">=-</span><span class="mi">1</span> <span class="o">--</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span> <span class="o">--</span><span class="n">varnames</span><span class="o">=</span><span class="s1">&#39;mee, med, mdd, mnn, mnd, mne, north_shift, east_shift, magnitude&#39;</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -437,8 +465,9 @@ We see that the true solution is not comprised within the posterior pdfs. This m
 <div><img alt="_images/FullMT_corr_hist_max.png" src="_images/FullMT_corr_hist_max.png" />
 </div></blockquote>
 <p>This shows 2d kernel density estimates (kde) and histograms of the specified model parameters. The darker the 2d kde the higher the probability of the model parameter.
-THe red dot and the vertical red lines show the true values of the target source in the kde plots and histograms, respectively.</p>
-<p>The ‘varnames’ option may take any parameter that has been optimized for. For example one might als want to try –varnames=’duration, time, magnitude, north_shift, east_shift’</p>
+The red dot and the vertical red lines show the true values of the target source in the kde plots and histograms, respectively.</p>
+<p>The ‘varnames’ option may take any parameter that has been optimized for. For example one might als want to try –varnames=’duration, time, magnitude, north_shift, east_shift’.
+If it is not specified all sampled parameters are taken into account.</p>
 </div>
 </div>
 </div>
@@ -461,6 +490,7 @@ THe red dot and the vertical red lines show the true values of the target source
 <li class="toctree-l2"><a class="reference internal" href="#regional-full-moment-tensor">Regional Full Moment Tensor</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#clone-project">Clone project</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#calculate-greens-functions">Calculate Greens Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-windowing-and-optimization-setup">Data windowing and optimization setup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#sample-the-solution-space">Sample the solution space</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#restarting-sampling">Restarting sampling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#summarize-the-results">Summarize the results</a></li>

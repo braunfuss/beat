@@ -539,16 +539,16 @@
     <span class="n">blacklist</span> <span class="o">=</span> <span class="n">List</span><span class="o">.</span><span class="n">T</span><span class="p">(</span>
         <span class="n">String</span><span class="o">.</span><span class="n">T</span><span class="p">(),</span>
         <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;placeholder&#39;</span><span class="p">],</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Station name for station to be thrown out.&#39;</span><span class="p">)</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;GPS station name or scene name to be thrown out.&#39;</span><span class="p">)</span>
     <span class="n">types</span> <span class="o">=</span> <span class="n">List</span><span class="o">.</span><span class="n">T</span><span class="p">(</span>
         <span class="n">String</span><span class="o">.</span><span class="n">T</span><span class="p">(),</span>
         <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;SAR&#39;</span><span class="p">],</span>
         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Types of geodetic data, i.e. SAR, GPS, ...&#39;</span><span class="p">)</span>
     <span class="n">calc_data_cov</span> <span class="o">=</span> <span class="n">Bool</span><span class="o">.</span><span class="n">T</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Flag for calculating the data covariance matrix based on the&#39;</span>
-             <span class="s1">&#39; pre P arrival data trace noise.&#39;</span><span class="p">)</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Flag for calculating the data covariance matrix, &#39;</span>
+             <span class="s1">&#39;outsourced to &quot;kite&quot;&#39;</span><span class="p">)</span>
     <span class="n">interpolation</span> <span class="o">=</span> <span class="n">StringChoice</span><span class="o">.</span><span class="n">T</span><span class="p">(</span>
         <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nearest_neighbor&#39;</span><span class="p">,</span> <span class="s1">&#39;multilinear&#39;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s1">&#39;multilinear&#39;</span><span class="p">,</span>
