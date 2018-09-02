@@ -283,16 +283,21 @@
     <span class="n">d</span> <span class="o">=</span> <span class="n">Float</span><span class="o">.</span><span class="n">T</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">55.</span><span class="p">,</span>
                 <span class="n">help</span><span class="o">=</span><span class="s1">&#39;end of fading out; [s] w.r.t phase arrival&#39;</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">duration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">num</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span>
+    <span class="k">def</span> <span class="nf">duration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chop_bounds</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">]):</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chop_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chop_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">t1</span> <span class="o">-</span> <span class="n">t0</span>
 
-<div class="viewcode-block" id="ArrivalTaper.nsamples"><a class="viewcode-back" href="../api.html#heart.ArrivalTaper.nsamples">[docs]</a>    <span class="k">def</span> <span class="nf">nsamples</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">):</span>
+<div class="viewcode-block" id="ArrivalTaper.nsamples"><a class="viewcode-back" href="../api.html#heart.ArrivalTaper.nsamples">[docs]</a>    <span class="k">def</span> <span class="nf">nsamples</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="n">chop_bounds</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the number of samples a tapered trace would have given</span>
-<span class="sd">        its sample rate.</span>
+<span class="sd">        its sample rate and chop_bounds</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sample_rate : float</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">num</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">sample_rate</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">num</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">sample_rate</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">(</span><span class="n">chop_bounds</span><span class="p">)))</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">fadein</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2058,11 +2063,14 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span>
 
-<div class="viewcode-block" id="WaveformMapping.station_distance_weeding"><a class="viewcode-back" href="../api.html#heart.WaveformMapping.station_distance_weeding">[docs]</a>    <span class="k">def</span> <span class="nf">station_distance_weeding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">distances</span><span class="p">):</span>
+<div class="viewcode-block" id="WaveformMapping.station_weeding"><a class="viewcode-back" href="../api.html#heart.WaveformMapping.station_weeding">[docs]</a>    <span class="k">def</span> <span class="nf">station_weeding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">distances</span><span class="p">,</span> <span class="n">blacklist</span><span class="o">=</span><span class="p">[]):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Weed stations and related objects based on distances.</span>
+<span class="sd">        Weed stations and related objects based on distances and blacklist.</span>
 <span class="sd">        Works only a single time after init!</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stations</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">apply_station_blacklist</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">,</span> <span class="n">blacklist</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">stations</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">weed_stations</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">distances</span><span class="o">=</span><span class="n">distances</span><span class="p">)</span>
 
@@ -2094,18 +2102,28 @@
                 <span class="s1">&#39;filter! Either (1) Adjust distance range (set &quot;distances&quot; &#39;</span>
                 <span class="s1">&#39; parameter in beat.WaveformFitConfig, given in degrees &#39;</span>
                 <span class="s1">&#39; epicentral distance) or (2) deactivate the wavemap &#39;</span>
-                <span class="s1">&#39;completely by setting include=False!&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="s1">&#39;completely by setting include=False!&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mapid</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Consistent number of &#39;</span>
-                        <span class="s1">&#39;datasets and targets in </span><span class="si">%s</span><span class="s1"> wavemap!&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                        <span class="s1">&#39;datasets and targets in </span><span class="si">%s</span><span class="s1"> wavemap!&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mapid</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">update_interpolation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
             <span class="n">target</span><span class="o">.</span><span class="n">interpolation</span> <span class="o">=</span> <span class="n">method</span>
 
-    <span class="k">def</span> <span class="nf">_update_trace_wavenames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_update_trace_wavenames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">wavename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">wavename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
         <span class="k">for</span> <span class="n">dtrace</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">:</span>
-            <span class="n">dtrace</span><span class="o">.</span><span class="n">set_wavename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">dtrace</span><span class="o">.</span><span class="n">set_wavename</span><span class="p">(</span><span class="n">wavename</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_mapid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;mapnumber&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapnumber</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">n_t</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2141,14 +2159,16 @@
 
         <span class="k">return</span> <span class="n">weights</span>
 
-<div class="viewcode-block" id="WaveformMapping.prepare_data"><a class="viewcode-back" href="../api.html#heart.WaveformMapping.prepare_data">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">outmode</span><span class="o">=</span><span class="s1">&#39;array&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="WaveformMapping.prepare_data"><a class="viewcode-back" href="../api.html#heart.WaveformMapping.prepare_data">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">outmode</span><span class="o">=</span><span class="s1">&#39;array&#39;</span><span class="p">,</span> <span class="n">chop_bounds</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Taper, filter data traces according to given reference event.</span>
 <span class="sd">        Traces are concatenated to one single array.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepared_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s1">&#39;Overwriting observed data windows in &quot;</span><span class="si">%s</span><span class="s1">&quot;!&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="s1">&#39;Overwriting observed data windows in &quot;</span><span class="si">%s</span><span class="s1">&quot;!&#39;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapnumber</span><span class="p">)))</span>
 
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;config&#39;</span><span class="p">):</span>
             <span class="n">arrival_times</span> <span class="o">=</span> <span class="n">num</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_t</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tconfig</span><span class="o">.</span><span class="n">floatX</span><span class="p">)</span>
@@ -2162,7 +2182,8 @@
                 <span class="n">arrival_taper</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_taper</span><span class="p">,</span>
                 <span class="n">filterer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filterer</span><span class="p">,</span>
                 <span class="n">arrival_times</span><span class="o">=</span><span class="n">arrival_times</span><span class="p">,</span>
-                <span class="n">outmode</span><span class="o">=</span><span class="n">outmode</span><span class="p">)</span>
+                <span class="n">outmode</span><span class="o">=</span><span class="n">outmode</span><span class="p">,</span>
+                <span class="n">chop_bounds</span><span class="o">=</span><span class="n">chop_bounds</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_arrival_times</span> <span class="o">=</span> <span class="n">arrival_times</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Wavemap needs configuration!&#39;</span><span class="p">)</span></div>
@@ -2207,23 +2228,6 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stations</span><span class="p">,</span> <span class="n">waveforms</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stations</span> <span class="o">=</span> <span class="n">stations</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">waveforms</span> <span class="o">=</span> <span class="n">waveforms</span>
-
-    <span class="k">def</span> <span class="nf">station_blacklisting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blacklist</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stations</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">apply_station_blacklist</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">,</span> <span class="n">blacklist</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_data</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">weeded_traces</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">weed_data_traces</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">)</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_datasets</span><span class="p">(</span><span class="n">weeded_traces</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_t</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">weeded_targets</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">weed_targets</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_targets</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">)</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_targets</span><span class="p">(</span><span class="n">weeded_targets</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_target2index</span> <span class="o">=</span> <span class="kc">None</span>   <span class="c1"># reset mapping</span>
 
     <span class="k">def</span> <span class="nf">downsample_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deltat</span><span class="p">):</span>
         <span class="n">utility</span><span class="o">.</span><span class="n">downsample_traces</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">deltat</span><span class="o">=</span><span class="n">deltat</span><span class="p">)</span>
@@ -2443,19 +2447,18 @@
         <span class="n">channels</span><span class="o">=</span><span class="n">sc</span><span class="o">.</span><span class="n">get_unique_channels</span><span class="p">(),</span>
         <span class="n">sample_rate</span><span class="o">=</span><span class="n">sc</span><span class="o">.</span><span class="n">gf_config</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">,</span>
         <span class="n">crust_inds</span><span class="o">=</span><span class="p">[</span><span class="n">sc</span><span class="o">.</span><span class="n">gf_config</span><span class="o">.</span><span class="n">reference_model_idx</span><span class="p">],</span>
-        <span class="n">reference_location</span><span class="o">=</span><span class="n">sc</span><span class="o">.</span><span class="n">gf_config</span><span class="o">.</span><span class="n">reference_location</span><span class="p">,</span>
-        <span class="n">blacklist</span><span class="o">=</span><span class="n">sc</span><span class="o">.</span><span class="n">blacklist</span><span class="p">)</span>
+        <span class="n">reference_location</span><span class="o">=</span><span class="n">sc</span><span class="o">.</span><span class="n">gf_config</span><span class="o">.</span><span class="n">reference_location</span><span class="p">)</span>
 
     <span class="n">datahandler</span> <span class="o">=</span> <span class="n">DataWaveformCollection</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="n">wavenames</span><span class="p">)</span>
     <span class="n">datahandler</span><span class="o">.</span><span class="n">add_datasets</span><span class="p">(</span>
         <span class="n">data_traces</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">sc</span><span class="o">.</span><span class="n">gf_config</span><span class="o">.</span><span class="n">reference_model_idx</span><span class="p">)</span>
     <span class="n">datahandler</span><span class="o">.</span><span class="n">downsample_datasets</span><span class="p">(</span><span class="n">target_deltat</span><span class="p">)</span>
     <span class="n">datahandler</span><span class="o">.</span><span class="n">add_targets</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span>
-    <span class="n">datahandler</span><span class="o">.</span><span class="n">station_blacklisting</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">blacklist</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">datahandler</span></div>
 
 
-<div class="viewcode-block" id="init_wavemap"><a class="viewcode-back" href="../api.html#heart.init_wavemap">[docs]</a><span class="k">def</span> <span class="nf">init_wavemap</span><span class="p">(</span><span class="n">waveformfit_config</span><span class="p">,</span> <span class="n">datahandler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="init_wavemap"><a class="viewcode-back" href="../api.html#heart.init_wavemap">[docs]</a><span class="k">def</span> <span class="nf">init_wavemap</span><span class="p">(</span>
+        <span class="n">waveformfit_config</span><span class="p">,</span> <span class="n">datahandler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mapnumber</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initialise wavemap, which sets targets, datasets and stations into</span>
 <span class="sd">    relation to the seismic Phase of interest and allows individual</span>
@@ -2466,6 +2469,8 @@
 <span class="sd">    waveformfit_config : :class:`config.WaveformFitConfig`</span>
 <span class="sd">    datahandler : :class:`DataWaveformCollection`</span>
 <span class="sd">    event : :class:`pyrocko.model.Event`</span>
+<span class="sd">    mapnumber : int</span>
+<span class="sd">        number of wavemap in list of wavemaps</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -2474,17 +2479,20 @@
     <span class="n">wc</span> <span class="o">=</span> <span class="n">waveformfit_config</span>
     <span class="n">wmap</span> <span class="o">=</span> <span class="n">datahandler</span><span class="o">.</span><span class="n">get_waveform_mapping</span><span class="p">(</span><span class="n">wc</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">wc</span><span class="o">.</span><span class="n">channels</span><span class="p">)</span>
     <span class="n">wmap</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">wc</span>
+    <span class="n">wmap</span><span class="o">.</span><span class="n">mapnumber</span> <span class="o">=</span> <span class="n">mapnumber</span>
 
-    <span class="n">wmap</span><span class="o">.</span><span class="n">station_distance_weeding</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">wc</span><span class="o">.</span><span class="n">distances</span><span class="p">)</span>
+    <span class="n">wmap</span><span class="o">.</span><span class="n">station_weeding</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">wc</span><span class="o">.</span><span class="n">distances</span><span class="p">,</span> <span class="n">blacklist</span><span class="o">=</span><span class="n">wc</span><span class="o">.</span><span class="n">blacklist</span><span class="p">)</span>
     <span class="n">wmap</span><span class="o">.</span><span class="n">update_interpolation</span><span class="p">(</span><span class="n">wc</span><span class="o">.</span><span class="n">interpolation</span><span class="p">)</span>
+    <span class="n">wmap</span><span class="o">.</span><span class="n">_update_trace_wavenames</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">wc</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">wmap</span><span class="o">.</span><span class="n">mapnumber</span><span class="p">)]))</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Number of seismic datasets for </span><span class="si">%s</span><span class="s1">: </span><span class="si">%i</span><span class="s1"> &#39;</span> <span class="o">%</span> <span class="p">(</span>
-        <span class="n">wmap</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">wmap</span><span class="o">.</span><span class="n">n_data</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Number of seismic datasets for wavemap: </span><span class="si">%s</span><span class="s1">: </span><span class="si">%i</span><span class="s1"> &#39;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">wmap</span><span class="o">.</span><span class="n">_mapid</span><span class="p">,</span> <span class="n">wmap</span><span class="o">.</span><span class="n">n_data</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">wmap</span></div>
 
 
-<div class="viewcode-block" id="post_process_trace"><a class="viewcode-back" href="../api.html#heart.post_process_trace">[docs]</a><span class="k">def</span> <span class="nf">post_process_trace</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">taper</span><span class="p">,</span> <span class="n">filterer</span><span class="p">,</span> <span class="n">taper_tolerance_factor</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
-                       <span class="n">outmode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="post_process_trace"><a class="viewcode-back" href="../api.html#heart.post_process_trace">[docs]</a><span class="k">def</span> <span class="nf">post_process_trace</span><span class="p">(</span>
+        <span class="n">trace</span><span class="p">,</span> <span class="n">taper</span><span class="p">,</span> <span class="n">filterer</span><span class="p">,</span> <span class="n">taper_tolerance_factor</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+        <span class="n">outmode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chop_bounds</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Taper, filter and then chop one trace in place.</span>
 
@@ -2496,6 +2504,9 @@
 <span class="sd">    taper_tolerance_factor : float</span>
 <span class="sd">        default: 0 , cut exactly at the taper edges</span>
 <span class="sd">        taper.fadein times this factor determines added tolerance</span>
+<span class="sd">    chop_bounds : str</span>
+<span class="sd">        determines where to chop the trace on the taper attributes</span>
+<span class="sd">        may be combination of [a, b, c, d]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">filterer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2507,8 +2518,8 @@
 
     <span class="k">if</span> <span class="n">taper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">outmode</span> <span class="o">!=</span> <span class="s1">&#39;data&#39;</span><span class="p">:</span>
         <span class="n">tolerance</span> <span class="o">=</span> <span class="p">(</span><span class="n">taper</span><span class="o">.</span><span class="n">b</span> <span class="o">-</span> <span class="n">taper</span><span class="o">.</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">taper_tolerance_factor</span>
-        <span class="n">lower_cut</span> <span class="o">=</span> <span class="n">taper</span><span class="o">.</span><span class="n">a</span> <span class="o">-</span> <span class="n">tolerance</span>
-        <span class="n">upper_cut</span> <span class="o">=</span> <span class="n">taper</span><span class="o">.</span><span class="n">d</span> <span class="o">+</span> <span class="n">tolerance</span>
+        <span class="n">lower_cut</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">taper</span><span class="p">,</span> <span class="n">chop_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="n">tolerance</span>
+        <span class="n">upper_cut</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">taper</span><span class="p">,</span> <span class="n">chop_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">tolerance</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;taper times: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">taper</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;trace: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">trace</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span>
@@ -2527,7 +2538,7 @@
                     <span class="n">wavename</span><span class="o">=</span><span class="s1">&#39;any_P&#39;</span><span class="p">,</span> <span class="n">filterer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reference_taperer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">outmode</span><span class="o">=</span><span class="s1">&#39;array&#39;</span><span class="p">,</span>
                     <span class="n">pre_stack_cut</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">taper_tolerance_factor</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
-                    <span class="n">arrival_times</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                    <span class="n">arrival_times</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chop_bounds</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate synthetic seismograms of combination of targets and sources,</span>
 <span class="sd">    filtering and tapering afterwards (filterer)</span>
@@ -2565,6 +2576,9 @@
 <span class="sd">        tolerance to chop traces around taper.a and taper.d</span>
 <span class="sd">    arrival_times : None or :class:`numpy.NdArray`</span>
 <span class="sd">        of phase to apply taper, if None theoretic arrival of ray tracing used</span>
+<span class="sd">    chop_bounds : str</span>
+<span class="sd">        determines where to chop the trace on the taper attributes</span>
+<span class="sd">        may be combination of [a, b, c, d]</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -2630,7 +2644,8 @@
             <span class="n">taper</span><span class="o">=</span><span class="n">taper</span><span class="p">,</span>
             <span class="n">filterer</span><span class="o">=</span><span class="n">filterer</span><span class="p">,</span>
             <span class="n">taper_tolerance_factor</span><span class="o">=</span><span class="n">taper_tolerance_factor</span><span class="p">,</span>
-            <span class="n">outmode</span><span class="o">=</span><span class="n">outmode</span><span class="p">)</span>
+            <span class="n">outmode</span><span class="o">=</span><span class="n">outmode</span><span class="p">,</span>
+            <span class="n">chop_bounds</span><span class="o">=</span><span class="n">chop_bounds</span><span class="p">)</span>
 
         <span class="n">sapp</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span>
 
@@ -2758,9 +2773,10 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Outmode </span><span class="si">%s</span><span class="s1"> not available&#39;</span> <span class="o">%</span> <span class="n">outmode</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="taper_filter_traces"><a class="viewcode-back" href="../api.html#heart.taper_filter_traces">[docs]</a><span class="k">def</span> <span class="nf">taper_filter_traces</span><span class="p">(</span><span class="n">traces</span><span class="p">,</span> <span class="n">arrival_taper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filterer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                        <span class="n">arrival_times</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">outmode</span><span class="o">=</span><span class="s1">&#39;array&#39;</span><span class="p">,</span>
-                        <span class="n">taper_tolerance_factor</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+<div class="viewcode-block" id="taper_filter_traces"><a class="viewcode-back" href="../api.html#heart.taper_filter_traces">[docs]</a><span class="k">def</span> <span class="nf">taper_filter_traces</span><span class="p">(</span>
+        <span class="n">traces</span><span class="p">,</span> <span class="n">arrival_taper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filterer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">arrival_times</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">outmode</span><span class="o">=</span><span class="s1">&#39;array&#39;</span><span class="p">,</span>
+        <span class="n">taper_tolerance_factor</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">chop_bounds</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Taper and filter data_traces according to given taper and filterers.</span>
 <span class="sd">    Tapering will start at the given tmin.</span>
@@ -2779,6 +2795,8 @@
 <span class="sd">        &quot;data&quot;</span>
 <span class="sd">    taper_tolerance_factor : float</span>
 <span class="sd">        tolerance to chop traces around taper.a and taper.d</span>
+<span class="sd">    chop_bounds : list of len 2</span>
+<span class="sd">        of taper attributes a, b, c, or d</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -2806,7 +2824,8 @@
             <span class="n">taper</span><span class="o">=</span><span class="n">taper</span><span class="p">,</span>
             <span class="n">filterer</span><span class="o">=</span><span class="n">filterer</span><span class="p">,</span>
             <span class="n">taper_tolerance_factor</span><span class="o">=</span><span class="n">taper_tolerance_factor</span><span class="p">,</span>
-            <span class="n">outmode</span><span class="o">=</span><span class="n">outmode</span><span class="p">)</span>
+            <span class="n">outmode</span><span class="o">=</span><span class="n">outmode</span><span class="p">,</span>
+            <span class="n">chop_bounds</span><span class="o">=</span><span class="n">chop_bounds</span><span class="p">)</span>
 
         <span class="n">ctpp</span><span class="p">(</span><span class="n">cut_trace</span><span class="p">)</span>
 

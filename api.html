@@ -134,9 +134,17 @@ Also contains main classes for setup specific parameters.</p>
 
 <dl class="method">
 <dt id="heart.ArrivalTaper.nsamples">
-<code class="descname">nsamples</code><span class="sig-paren">(</span><em>sample_rate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/heart.html#ArrivalTaper.nsamples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#heart.ArrivalTaper.nsamples" title="Permalink to this definition">¶</a></dt>
+<code class="descname">nsamples</code><span class="sig-paren">(</span><em>sample_rate, chop_bounds=['b', 'c']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/heart.html#ArrivalTaper.nsamples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#heart.ArrivalTaper.nsamples" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the number of samples a tapered trace would have given
-its sample rate.</p>
+its sample rate and chop_bounds</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sample_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – </td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -795,15 +803,15 @@ northing together with the width and height</p>
 <dd><p>Weights have to be theano.shared variables!</p>
 <dl class="method">
 <dt id="heart.WaveformMapping.prepare_data">
-<code class="descname">prepare_data</code><span class="sig-paren">(</span><em>source</em>, <em>engine</em>, <em>outmode='array'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/heart.html#WaveformMapping.prepare_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#heart.WaveformMapping.prepare_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">prepare_data</code><span class="sig-paren">(</span><em>source, engine, outmode='array', chop_bounds=['b', 'c']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/heart.html#WaveformMapping.prepare_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#heart.WaveformMapping.prepare_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Taper, filter data traces according to given reference event.
 Traces are concatenated to one single array.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="heart.WaveformMapping.station_distance_weeding">
-<code class="descname">station_distance_weeding</code><span class="sig-paren">(</span><em>event</em>, <em>distances</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/heart.html#WaveformMapping.station_distance_weeding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#heart.WaveformMapping.station_distance_weeding" title="Permalink to this definition">¶</a></dt>
-<dd><p>Weed stations and related objects based on distances.
+<dt id="heart.WaveformMapping.station_weeding">
+<code class="descname">station_weeding</code><span class="sig-paren">(</span><em>event</em>, <em>distances</em>, <em>blacklist=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/heart.html#WaveformMapping.station_weeding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#heart.WaveformMapping.station_weeding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Weed stations and related objects based on distances and blacklist.
 Works only a single time after init!</p>
 </dd></dl>
 
@@ -1219,7 +1227,7 @@ if given, targets are initialised with this reference location</li>
 
 <dl class="function">
 <dt id="heart.init_wavemap">
-<code class="descclassname">heart.</code><code class="descname">init_wavemap</code><span class="sig-paren">(</span><em>waveformfit_config</em>, <em>datahandler=None</em>, <em>event=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/heart.html#init_wavemap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#heart.init_wavemap" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">heart.</code><code class="descname">init_wavemap</code><span class="sig-paren">(</span><em>waveformfit_config</em>, <em>datahandler=None</em>, <em>event=None</em>, <em>mapnumber=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/heart.html#init_wavemap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#heart.init_wavemap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise wavemap, which sets targets, datasets and stations into
 relation to the seismic Phase of interest and allows individual
 specificiations.</p>
@@ -1231,6 +1239,7 @@ specificiations.</p>
 <li><strong>waveformfit_config</strong> (<a class="reference internal" href="#config.WaveformFitConfig" title="config.WaveformFitConfig"><code class="xref py py-class docutils literal"><span class="pre">config.WaveformFitConfig</span></code></a>) – </li>
 <li><strong>datahandler</strong> (<a class="reference internal" href="#heart.DataWaveformCollection" title="heart.DataWaveformCollection"><code class="xref py py-class docutils literal"><span class="pre">DataWaveformCollection</span></code></a>) – </li>
 <li><strong>event</strong> (<a class="reference external" href="https://pyrocko.org/v0.3/library/reference/model.html#pyrocko.model.Event" title="(in Pyrocko v0.3)"><code class="xref py py-class docutils literal"><span class="pre">pyrocko.model.Event</span></code></a>) – </li>
+<li><strong>mapnumber</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – number of wavemap in list of wavemaps</li>
 </ul>
 </td>
 </tr>
@@ -1276,7 +1285,7 @@ L-1*(L-1)T = R-1     inverse=True</p>
 
 <dl class="function">
 <dt id="heart.post_process_trace">
-<code class="descclassname">heart.</code><code class="descname">post_process_trace</code><span class="sig-paren">(</span><em>trace</em>, <em>taper</em>, <em>filterer</em>, <em>taper_tolerance_factor=0.0</em>, <em>outmode=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/heart.html#post_process_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#heart.post_process_trace" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">heart.</code><code class="descname">post_process_trace</code><span class="sig-paren">(</span><em>trace, taper, filterer, taper_tolerance_factor=0.0, outmode=None, chop_bounds=['b', 'c']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/heart.html#post_process_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#heart.post_process_trace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Taper, filter and then chop one trace in place.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1288,6 +1297,8 @@ L-1*(L-1)T = R-1     inverse=True</p>
 <li><strong>filterer</strong> (<code class="xref py py-class docutils literal"><span class="pre">Filterer</span></code>) – </li>
 <li><strong>taper_tolerance_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – default: 0 , cut exactly at the taper edges
 taper.fadein times this factor determines added tolerance</li>
+<li><strong>chop_bounds</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – determines where to chop the trace on the taper attributes
+may be combination of [a, b, c, d]</li>
 </ul>
 </td>
 </tr>
@@ -1325,7 +1336,7 @@ indexes &gt; 0 use reference model and vary its parameters by a Gaussian</li>
 
 <dl class="function">
 <dt id="heart.seis_synthetics">
-<code class="descclassname">heart.</code><code class="descname">seis_synthetics</code><span class="sig-paren">(</span><em>engine</em>, <em>sources</em>, <em>targets</em>, <em>arrival_taper=None</em>, <em>wavename='any_P'</em>, <em>filterer=None</em>, <em>reference_taperer=None</em>, <em>plot=False</em>, <em>nprocs=1</em>, <em>outmode='array'</em>, <em>pre_stack_cut=False</em>, <em>taper_tolerance_factor=0.0</em>, <em>arrival_times=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/heart.html#seis_synthetics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#heart.seis_synthetics" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">heart.</code><code class="descname">seis_synthetics</code><span class="sig-paren">(</span><em>engine, sources, targets, arrival_taper=None, wavename='any_P', filterer=None, reference_taperer=None, plot=False, nprocs=1, outmode='array', pre_stack_cut=False, taper_tolerance_factor=0.0, arrival_times=None, chop_bounds=['b', 'c']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/heart.html#seis_synthetics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#heart.seis_synthetics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate synthetic seismograms of combination of targets and sources,
 filtering and tapering afterwards (filterer)
 tapering according to arrival_taper around P -or S wave.
@@ -1354,6 +1365,8 @@ should be cutted according to the phase arival time and the defined
 taper</li>
 <li><strong>taper_tolerance_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – tolerance to chop traces around taper.a and taper.d</li>
 <li><strong>arrival_times</strong> (None or <code class="xref py py-class docutils literal"><span class="pre">numpy.NdArray</span></code>) – of phase to apply taper, if None theoretic arrival of ray tracing used</li>
+<li><strong>chop_bounds</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – determines where to chop the trace on the taper attributes
+may be combination of [a, b, c, d]</li>
 </ul>
 </td>
 </tr>
@@ -1370,7 +1383,7 @@ taper</li>
 
 <dl class="function">
 <dt id="heart.taper_filter_traces">
-<code class="descclassname">heart.</code><code class="descname">taper_filter_traces</code><span class="sig-paren">(</span><em>traces</em>, <em>arrival_taper=None</em>, <em>filterer=None</em>, <em>arrival_times=None</em>, <em>plot=False</em>, <em>outmode='array'</em>, <em>taper_tolerance_factor=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/heart.html#taper_filter_traces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#heart.taper_filter_traces" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">heart.</code><code class="descname">taper_filter_traces</code><span class="sig-paren">(</span><em>traces, arrival_taper=None, filterer=None, arrival_times=None, plot=False, outmode='array', taper_tolerance_factor=0.0, chop_bounds=['b', 'c']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/heart.html#taper_filter_traces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#heart.taper_filter_traces" title="Permalink to this definition">¶</a></dt>
 <dd><p>Taper and filter data_traces according to given taper and filterers.
 Tapering will start at the given tmin.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1386,6 +1399,7 @@ tapering</li>
 <li><strong>outmode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – defines the output structure, options: “stacked_traces”, “array”,
 “data”</li>
 <li><strong>taper_tolerance_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – tolerance to chop traces around taper.a and taper.d</li>
+<li><strong>chop_bounds</strong> (<em>list of len 2</em>) – of taper attributes a, b, c, or d</li>
 </ul>
 </td>
 </tr>
@@ -1474,7 +1488,7 @@ generation, optimization algorithm and the data being used.</p>
 <dl class="gattribute">
 <dt id="config.BEATconfig.problem_config">
 <em class="property">♦ </em><code class="descname">problem_config</code><a class="headerlink" href="#config.BEATconfig.problem_config" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#config.ProblemConfig" title="config.ProblemConfig"><code class="xref py py-class docutils literal"><span class="pre">ProblemConfig</span></code></a>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;config.ProblemConfig</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f5341816610&gt;</span></code></p>
+<dd><p><a class="reference internal" href="#config.ProblemConfig" title="config.ProblemConfig"><code class="xref py py-class docutils literal"><span class="pre">ProblemConfig</span></code></a>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;config.ProblemConfig</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fa5cb97f7d0&gt;</span></code></p>
 </dd></dl>
 
 <dl class="gattribute">
@@ -1492,13 +1506,13 @@ generation, optimization algorithm and the data being used.</p>
 <dl class="gattribute">
 <dt id="config.BEATconfig.sampler_config">
 <em class="property">♦ </em><code class="descname">sampler_config</code><a class="headerlink" href="#config.BEATconfig.sampler_config" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#config.SamplerConfig" title="config.SamplerConfig"><code class="xref py py-class docutils literal"><span class="pre">SamplerConfig</span></code></a>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;config.SamplerConfig</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f5341816610&gt;</span></code></p>
+<dd><p><a class="reference internal" href="#config.SamplerConfig" title="config.SamplerConfig"><code class="xref py py-class docutils literal"><span class="pre">SamplerConfig</span></code></a>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;config.SamplerConfig</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fa5cb97f7d0&gt;</span></code></p>
 </dd></dl>
 
 <dl class="gattribute">
 <dt id="config.BEATconfig.hyper_sampler_config">
 <em class="property">♦ </em><code class="descname">hyper_sampler_config</code><a class="headerlink" href="#config.BEATconfig.hyper_sampler_config" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#config.SamplerConfig" title="config.SamplerConfig"><code class="xref py py-class docutils literal"><span class="pre">SamplerConfig</span></code></a>, <em>optional</em>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;config.SamplerConfig</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f5341816650&gt;</span></code></p>
+<dd><p><a class="reference internal" href="#config.SamplerConfig" title="config.SamplerConfig"><code class="xref py py-class docutils literal"><span class="pre">SamplerConfig</span></code></a>, <em>optional</em>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;config.SamplerConfig</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fa5cb97f850&gt;</span></code></p>
 </dd></dl>
 
 <dl class="method">
@@ -1583,7 +1597,7 @@ hierarchical parameters.</p>
 <dl class="gattribute">
 <dt id="config.GFLibaryConfig.event">
 <em class="property">♦ </em><code class="descname">event</code><a class="headerlink" href="#config.GFLibaryConfig.event" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="xref py py-class docutils literal"><span class="pre">pyrocko.model.event.Event</span></code>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;pyrocko.model.event.Event</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f53416f09d0&gt;</span></code></p>
+<dd><p><code class="xref py py-class docutils literal"><span class="pre">pyrocko.model.event.Event</span></code>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;pyrocko.model.event.Event</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fa5cb978c90&gt;</span></code></p>
 </dd></dl>
 
 <dl class="gattribute">
@@ -1654,7 +1668,7 @@ hierarchical parameters.</p>
 <dl class="gattribute">
 <dt id="config.GeodeticConfig.gf_config">
 <em class="property">♦ </em><code class="descname">gf_config</code><a class="headerlink" href="#config.GeodeticConfig.gf_config" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#config.GFConfig" title="config.GFConfig"><code class="xref py py-class docutils literal"><span class="pre">GFConfig</span></code></a>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;config.GeodeticGFConfig</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f53416f8610&gt;</span></code></p>
+<dd><p><a class="reference internal" href="#config.GFConfig" title="config.GFConfig"><code class="xref py py-class docutils literal"><span class="pre">GFConfig</span></code></a>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;config.GeodeticGFConfig</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fa5cb9648d0&gt;</span></code></p>
 </dd></dl>
 
 </dd></dl>
@@ -2181,7 +2195,7 @@ Influences yet only the RectangularSource.</p>
 <dl class="gattribute">
 <dt id="config.SamplerConfig.parameters">
 <em class="property">♦ </em><code class="descname">parameters</code><a class="headerlink" href="#config.SamplerConfig.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#config.SamplerParameters" title="config.SamplerParameters"><code class="xref py py-class docutils literal"><span class="pre">SamplerParameters</span></code></a>, <em>optional</em>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;config.SMCConfig</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f53416f0750&gt;</span></code></p>
+<dd><p><a class="reference internal" href="#config.SamplerParameters" title="config.SamplerParameters"><code class="xref py py-class docutils literal"><span class="pre">SamplerParameters</span></code></a>, <em>optional</em>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;config.SMCConfig</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fa5cb978a10&gt;</span></code></p>
 <p>Sampler dependend Parameters</p>
 </dd></dl>
 
@@ -2232,17 +2246,10 @@ Influences yet only the RectangularSource.</p>
 </dd></dl>
 
 <dl class="gattribute">
-<dt id="config.SeismicConfig.blacklist">
-<em class="property">♦ </em><code class="descname">blacklist</code><a class="headerlink" href="#config.SeismicConfig.blacklist" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal"><span class="pre">list</span></code> of <code class="docutils literal"><span class="pre">str</span></code> objects, <em>default:</em> <code class="docutils literal"><span class="pre">['placeholder']</span></code></p>
-<p>Station name for station to be thrown out.</p>
-</dd></dl>
-
-<dl class="gattribute">
-<dt id="config.SeismicConfig.calc_data_cov">
-<em class="property">♦ </em><code class="descname">calc_data_cov</code><a class="headerlink" href="#config.SeismicConfig.calc_data_cov" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal"><span class="pre">bool</span></code>, <em>default:</em> <code class="docutils literal"><span class="pre">True</span></code></p>
-<p>Flag for calculating the data covariance matrix based on the pre P arrival data trace noise.</p>
+<dt id="config.SeismicConfig.noise_estimator">
+<em class="property">♦ </em><code class="descname">noise_estimator</code><a class="headerlink" href="#config.SeismicConfig.noise_estimator" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#config.SeismicNoiseAnalyserConfig" title="config.SeismicNoiseAnalyserConfig"><code class="xref py py-class docutils literal"><span class="pre">SeismicNoiseAnalyserConfig</span></code></a>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;config.SeismicNoiseAnalyserConfig</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fa5cb9644d0&gt;</span></code></p>
+<p>Determines the structure of the data-covariance matrix.</p>
 </dd></dl>
 
 <dl class="gattribute">
@@ -2268,7 +2275,7 @@ Influences yet only the RectangularSource.</p>
 <dl class="gattribute">
 <dt id="config.SeismicConfig.gf_config">
 <em class="property">♦ </em><code class="descname">gf_config</code><a class="headerlink" href="#config.SeismicConfig.gf_config" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#config.GFConfig" title="config.GFConfig"><code class="xref py py-class docutils literal"><span class="pre">GFConfig</span></code></a>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;config.SeismicGFConfig</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f53416f8250&gt;</span></code></p>
+<dd><p><a class="reference internal" href="#config.GFConfig" title="config.GFConfig"><code class="xref py py-class docutils literal"><span class="pre">GFConfig</span></code></a>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;config.SeismicGFConfig</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fa5cb964510&gt;</span></code></p>
 </dd></dl>
 
 <dl class="method">
@@ -2320,7 +2327,7 @@ Influences yet only the RectangularSource.</p>
 <dl class="gattribute">
 <dt id="config.SeismicGFLibraryConfig.wave_config">
 <em class="property">♦ </em><code class="descname">wave_config</code><a class="headerlink" href="#config.SeismicGFLibraryConfig.wave_config" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#config.WaveformFitConfig" title="config.WaveformFitConfig"><code class="xref py py-class docutils literal"><span class="pre">WaveformFitConfig</span></code></a>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;config.WaveformFitConfig</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f53416f0f50&gt;</span></code></p>
+<dd><p><a class="reference internal" href="#config.WaveformFitConfig" title="config.WaveformFitConfig"><code class="xref py py-class docutils literal"><span class="pre">WaveformFitConfig</span></code></a>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;config.WaveformFitConfig</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fa5cb97f290&gt;</span></code></p>
 </dd></dl>
 
 <dl class="gattribute">
@@ -2383,6 +2390,26 @@ Influences yet only the RectangularSource.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="config.SeismicNoiseAnalyserConfig">
+<em class="property">class </em><code class="descclassname">config.</code><code class="descname">SeismicNoiseAnalyserConfig</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/config.html#SeismicNoiseAnalyserConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#config.SeismicNoiseAnalyserConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Undocumented.</p>
+<dl class="gattribute">
+<dt id="config.SeismicNoiseAnalyserConfig.structure">
+<em class="property">♦ </em><code class="descname">structure</code><a class="headerlink" href="#config.SeismicNoiseAnalyserConfig.structure" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal"><span class="pre">str</span></code> (<code class="xref py py-class docutils literal"><span class="pre">pyrocko.guts.StringChoice</span></code>), <em>default:</em> <code class="docutils literal"><span class="pre">'identity'</span></code></p>
+<p>Determines data-covariance matrix structure.</p>
+</dd></dl>
+
+<dl class="gattribute">
+<dt id="config.SeismicNoiseAnalyserConfig.pre_arrival_time">
+<em class="property">♦ </em><code class="descname">pre_arrival_time</code><a class="headerlink" href="#config.SeismicNoiseAnalyserConfig.pre_arrival_time" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal"><span class="pre">float</span></code>, <em>default:</em> <code class="docutils literal"><span class="pre">5.0</span></code></p>
+<p>Time [s] before synthetic P-wave arrival until variance is estimated</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="config.WaveformFitConfig">
 <em class="property">class </em><code class="descclassname">config.</code><code class="descname">WaveformFitConfig</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/config.html#WaveformFitConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#config.WaveformFitConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Config for specific parameters that are applied to post-process
@@ -2401,6 +2428,13 @@ a specific type of waveform and calculate the misfit.</p>
 </dd></dl>
 
 <dl class="gattribute">
+<dt id="config.WaveformFitConfig.blacklist">
+<em class="property">♦ </em><code class="descname">blacklist</code><a class="headerlink" href="#config.WaveformFitConfig.blacklist" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal"><span class="pre">list</span></code> of <code class="docutils literal"><span class="pre">str</span></code> objects, <em>default:</em> <code class="docutils literal"><span class="pre">[&lt;pyrocko.guts.String</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fa5cb955f50&gt;]</span></code></p>
+<p>Station name for stations to be thrown out.</p>
+</dd></dl>
+
+<dl class="gattribute">
 <dt id="config.WaveformFitConfig.channels">
 <em class="property">♦ </em><code class="descname">channels</code><a class="headerlink" href="#config.WaveformFitConfig.channels" title="Permalink to this definition">¶</a></dt>
 <dd><p><code class="docutils literal"><span class="pre">list</span></code> of <code class="docutils literal"><span class="pre">str</span></code> objects, <em>default:</em> <code class="docutils literal"><span class="pre">['Z']</span></code></p>
@@ -2409,7 +2443,7 @@ a specific type of waveform and calculate the misfit.</p>
 <dl class="gattribute">
 <dt id="config.WaveformFitConfig.filterer">
 <em class="property">♦ </em><code class="descname">filterer</code><a class="headerlink" href="#config.WaveformFitConfig.filterer" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="xref py py-class docutils literal"><span class="pre">beat.heart.Filter</span></code>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;beat.heart.Filter</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f53416e1d90&gt;</span></code></p>
+<dd><p><code class="xref py py-class docutils literal"><span class="pre">beat.heart.Filter</span></code>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;beat.heart.Filter</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fa5cb955e90&gt;</span></code></p>
 </dd></dl>
 
 <dl class="gattribute">
@@ -2428,7 +2462,7 @@ a specific type of waveform and calculate the misfit.</p>
 <dl class="gattribute">
 <dt id="config.WaveformFitConfig.arrival_taper">
 <em class="property">♦ </em><code class="descname">arrival_taper</code><a class="headerlink" href="#config.WaveformFitConfig.arrival_taper" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference external" href="https://pyrocko.org/v0.3/library/reference/trace.html#pyrocko.trace.Taper" title="(in Pyrocko v0.3)"><code class="xref py py-class docutils literal"><span class="pre">pyrocko.trace.Taper</span></code></a>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;beat.heart.ArrivalTaper</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f53416e1d90&gt;</span></code></p>
+<dd><p><a class="reference external" href="https://pyrocko.org/v0.3/library/reference/trace.html#pyrocko.trace.Taper" title="(in Pyrocko v0.3)"><code class="xref py py-class docutils literal"><span class="pre">pyrocko.trace.Taper</span></code></a>, <em>default:</em> <code class="docutils literal"><span class="pre">&lt;beat.heart.ArrivalTaper</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fa5cb955e90&gt;</span></code></p>
 <p>Taper a,b/c,d time [s] before/after wave arrival</p>
 </dd></dl>
 
@@ -2489,7 +2523,7 @@ objects.</li>
 
 <dl class="function">
 <dt id="config.load_config">
-<code class="descclassname">config.</code><code class="descname">load_config</code><span class="sig-paren">(</span><em>project_dir</em>, <em>mode</em>, <em>update=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/config.html#load_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#config.load_config" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">config.</code><code class="descname">load_config</code><span class="sig-paren">(</span><em>project_dir</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/config.html#load_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#config.load_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load configuration file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -4227,7 +4261,7 @@ that need to be resampled.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>dirname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of directory with files (one per chain)</li>
-<li><strong>model</strong> (<em>Model</em>) – If None, the model is taken from the <cite>with</cite> context.</li>
+<li><strong>varnames</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – of strings with variable names</li>
 <li><strong>chains</strong> (<em>list optional</em>) – </li>
 </ul>
 </td>
@@ -4854,24 +4888,37 @@ in the velocity model for station and channel.</p>
 </table>
 </dd></dl>
 
-<dl class="function">
-<dt id="covariance.seismic_data_covariance">
-<code class="descclassname">covariance.</code><code class="descname">seismic_data_covariance</code><span class="sig-paren">(</span><em>data_traces</em>, <em>engine</em>, <em>filterer</em>, <em>sample_rate</em>, <em>arrival_taper</em>, <em>event</em>, <em>targets</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/covariance.html#seismic_data_covariance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#covariance.seismic_data_covariance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate SubCovariance Matrix of trace object following
-Duputel et al. 2012 GJI
-“Uncertainty estimations for seismic source inversions” p. 5</p>
+<dl class="class">
+<dt id="covariance.SeismicNoiseAnalyser">
+<em class="property">class </em><code class="descclassname">covariance.</code><code class="descname">SeismicNoiseAnalyser</code><span class="sig-paren">(</span><em>structure='identity', pre_arrival_time=5.0, engine=None, event=None, sources=None, chop_bounds=['b', 'c']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/covariance.html#SeismicNoiseAnalyser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#covariance.SeismicNoiseAnalyser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Seismic noise analyser</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.7)"><em>string</em></a>) – either identity, exponential, import</li>
+<li><strong>pre_arrival_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – in [s], time before P arrival until variance is estimated</li>
+<li><strong>engine</strong> (<a class="reference external" href="https://pyrocko.org/v0.3/library/reference/gf.html#pyrocko.gf.seismosizer.LocalEngine" title="(in Pyrocko v0.3)"><code class="xref py py-class docutils literal"><span class="pre">pyrocko.gf.seismosizer.LocalEngine</span></code></a>) – processing object for synthetics calculation</li>
+<li><strong>event</strong> (<code class="xref py py-class docutils literal"><span class="pre">pyrocko.meta.Event</span></code>) – reference event from catalog</li>
+<li><strong>chop_bounds</strong> (<em>list of len 2</em>) – of taper attributes a, b, c, or d</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="covariance.SeismicNoiseAnalyser.get_data_covariances">
+<code class="descname">get_data_covariances</code><span class="sig-paren">(</span><em>wmap</em>, <em>sample_rate</em>, <em>results=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/covariance.html#SeismicNoiseAnalyser.get_data_covariances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#covariance.SeismicNoiseAnalyser.get_data_covariances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimated data covariances of seismic traces</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data_traces</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – of <a class="reference external" href="https://pyrocko.org/v0.3/library/reference/trace.html#pyrocko.trace.Trace" title="(in Pyrocko v0.3)"><code class="xref py py-class docutils literal"><span class="pre">pyrocko.trace.Trace</span></code></a> containing observed data</li>
-<li><strong>engine</strong> (<a class="reference external" href="https://pyrocko.org/v0.3/library/reference/gf.html#pyrocko.gf.seismosizer.LocalEngine" title="(in Pyrocko v0.3)"><code class="xref py py-class docutils literal"><span class="pre">pyrocko.gf.seismosizer.LocalEngine</span></code></a>) – processing object for synthetics calculation</li>
-<li><strong>filterer</strong> (<a class="reference internal" href="#heart.Filter" title="heart.Filter"><code class="xref py py-class docutils literal"><span class="pre">heart.Filter</span></code></a>) – determines the bandpass-filtering corner frequencies</li>
+<li><strong>wmap</strong> (<code class="xref py py-class docutils literal"><span class="pre">eat.WaveformMapping</span></code>) – </li>
+<li><strong>results</strong> – </li>
 <li><strong>sample_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – sampling rate of data_traces and GreensFunction stores</li>
-<li><strong>arrival_taper</strong> – determines tapering around phase Arrival</li>
-<li><strong>event</strong> (<code class="xref py py-class docutils literal"><span class="pre">pyrocko.meta.Event</span></code>) – reference event from catalog</li>
-<li><strong>targets</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – of <code class="xref py py-class docutils literal"><span class="pre">pyrocko.gf.seismosizer.Targets</span></code></li>
 </ul>
 </td>
 </tr>
@@ -4883,14 +4930,8 @@ Duputel et al. 2012 GJI
 </tr>
 </tbody>
 </table>
-<p class="rubric">Notes</p>
-<dl class="docutils">
-<dt>Cd(i,j) = (Variance of trace)*exp(-abs(ti-tj)/</dt>
-<dd><blockquote class="first">
-<div>(shortest period T0 of waves))</div></blockquote>
-<p class="last">i,j are samples of the seismic trace</p>
-</dd>
-</dl>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -5487,9 +5528,9 @@ if ‘center’ the depth in the source is interpreted as center depth</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <a class="reference external" href="http://docs.pymc.io/api/model.html#pymc3.model.Point" title="(in PyMC3 v3.5)"><code class="xref py py-func docutils literal"><span class="pre">pymc3.model.Point()</span></code></a> of model parameter units as keys</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <a class="reference external" href="https://docs.pymc.io/api/model.html#pymc3.model.Point" title="(in PyMC3 v3.5)"><code class="xref py py-func docutils literal"><span class="pre">pymc3.model.Point()</span></code></a> of model parameter units as keys</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>mpoint</strong> – <a class="reference external" href="http://docs.pymc.io/api/model.html#pymc3.model.Point" title="(in PyMC3 v3.5)"><code class="xref py py-func docutils literal"><span class="pre">pymc3.model.Point()</span></code></a></td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>mpoint</strong> – <a class="reference external" href="https://docs.pymc.io/api/model.html#pymc3.model.Point" title="(in PyMC3 v3.5)"><code class="xref py py-func docutils literal"><span class="pre">pymc3.model.Point()</span></code></a></td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></td>
 </tr>
@@ -5997,9 +6038,9 @@ parameters for each source.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <a class="reference external" href="http://docs.pymc.io/api/model.html#pymc3.model.Point" title="(in PyMC3 v3.5)"><code class="xref py py-func docutils literal"><span class="pre">pymc3.model.Point()</span></code></a></td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <a class="reference external" href="https://docs.pymc.io/api/model.html#pymc3.model.Point" title="(in PyMC3 v3.5)"><code class="xref py py-func docutils literal"><span class="pre">pymc3.model.Point()</span></code></a></td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>source_points</strong> – of <a class="reference external" href="http://docs.pymc.io/api/model.html#pymc3.model.Point" title="(in PyMC3 v3.5)"><code class="xref py py-func docutils literal"><span class="pre">pymc3.model.Point()</span></code></a></td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>source_points</strong> – of <a class="reference external" href="https://docs.pymc.io/api/model.html#pymc3.model.Point" title="(in PyMC3 v3.5)"><code class="xref py py-func docutils literal"><span class="pre">pymc3.model.Point()</span></code></a></td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></td>
 </tr>
@@ -6070,7 +6111,7 @@ Modifies input source Object!</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>source</strong> (<a class="reference external" href="https://pyrocko.org/v0.3/library/reference/gf.html#pyrocko.gf.seismosizer.Source" title="(in Pyrocko v0.3)"><code class="xref py py-class docutils literal"><span class="pre">pyrocko.gf.seismosizer.Source</span></code></a>) – </li>
-<li><strong>point</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <a class="reference external" href="http://docs.pymc.io/api/model.html#pymc3.model.Point" title="(in PyMC3 v3.5)"><code class="xref py py-func docutils literal"><span class="pre">pymc3.model.Point()</span></code></a></li>
+<li><strong>point</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <a class="reference external" href="https://docs.pymc.io/api/model.html#pymc3.model.Point" title="(in PyMC3 v3.5)"><code class="xref py py-func docutils literal"><span class="pre">pymc3.model.Point()</span></code></a></li>
 </ul>
 </td>
 </tr>

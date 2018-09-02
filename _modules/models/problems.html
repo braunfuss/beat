@@ -85,6 +85,7 @@
 <span class="kn">from</span> <span class="nn">pymc3</span> <span class="k">import</span> <span class="n">Uniform</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">Deterministic</span><span class="p">,</span> <span class="n">Potential</span>
 
 <span class="kn">from</span> <span class="nn">pyrocko</span> <span class="k">import</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">pyrocko.guts</span> <span class="k">import</span> <span class="n">ArgumentError</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">num</span>
 
@@ -121,7 +122,20 @@
 
     <span class="n">context</span> <span class="o">=</span> <span class="s1">&#39;Configuration file has to be updated!&#39;</span> <span class="o">+</span> \
               <span class="s1">&#39; Hyperparameters have to be re-estimated. </span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> \
-              <span class="s1">&#39; Please run &quot;beat sample &lt;project_dir&gt; --hypers&quot;&#39;</span>
+              <span class="s1">&#39; Please run &quot;beat update &lt;project_dir&gt;&#39;</span> <span class="o">+</span> \
+              <span class="s1">&#39; --parameters=hypers, hierarchicals&quot;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">errmess</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">errmess</span> <span class="o">=</span> <span class="n">errmess</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">errmess</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ConfigNeedsUpdatingError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="s1">&#39;Configuration file has to be updated! </span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> \
+              <span class="s1">&#39; Please run &quot;beat update &lt;project_dir&gt;&#39;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">errmess</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">errmess</span> <span class="o">=</span> <span class="n">errmess</span>
@@ -292,6 +306,7 @@
 <span class="sd">        Configuration object that contains the problem definition.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_varnames</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_hypernames</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">hypers</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
@@ -357,8 +372,8 @@
                         <span class="n">tune_interval</span><span class="o">=</span><span class="n">sc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">tune_interval</span><span class="p">,</span>
                         <span class="n">proposal_name</span><span class="o">=</span><span class="n">sc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">proposal_dist</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">step</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">SMC</span><span class="p">(</span>
-                        <span class="n">n_chains</span><span class="o">=</span><span class="n">sc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
+                    <span class="n">step</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">Metropolis</span><span class="p">(</span>
+                        <span class="n">n_chains</span><span class="o">=</span><span class="n">sc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">n_chains</span><span class="p">,</span>
                         <span class="n">tune_interval</span><span class="o">=</span><span class="n">sc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">tune_interval</span><span class="p">,</span>
                         <span class="n">likelihood_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_like_name</span><span class="p">,</span>
                         <span class="n">proposal_name</span><span class="o">=</span><span class="n">sc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">proposal_dist</span><span class="p">)</span>
@@ -442,7 +457,7 @@
 
             <span class="c1"># will overwrite deterministic name ...</span>
             <span class="n">llk</span> <span class="o">=</span> <span class="n">Potential</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_like_name</span><span class="p">,</span> <span class="n">like</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Model building was successful!&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Model building was successful! </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">plant_lijection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -474,8 +489,6 @@
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">pc</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">point</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">testvalue</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">update_llks</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
-
         <span class="k">with</span> <span class="n">Model</span><span class="p">()</span> <span class="k">as</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">:</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">init_hyperparams</span><span class="p">()</span>
@@ -483,6 +496,10 @@
             <span class="n">total_llk</span> <span class="o">=</span> <span class="n">tt</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">),</span> <span class="n">tconfig</span><span class="o">.</span><span class="n">floatX</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">composite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">composites</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">composite</span><span class="p">,</span> <span class="s1">&#39;analyse_noise&#39;</span><span class="p">):</span>
+                    <span class="n">composite</span><span class="o">.</span><span class="n">analyse_noise</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+
+                <span class="n">composite</span><span class="o">.</span><span class="n">update_llks</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
                 <span class="n">total_llk</span> <span class="o">+=</span> <span class="n">composite</span><span class="o">.</span><span class="n">get_hyper_formula</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hyperparams</span><span class="p">,</span> <span class="n">pc</span><span class="p">)</span>
 
             <span class="n">like</span> <span class="o">=</span> <span class="n">Deterministic</span><span class="p">(</span><span class="s1">&#39;tmp&#39;</span><span class="p">,</span> <span class="n">total_llk</span><span class="p">)</span>
@@ -575,6 +592,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_varnames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_random_variables</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_varnames</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">hypernames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sampled random variable names.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of strings</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hypernames</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_hyperparams</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hypernames</span>
+
     <span class="k">def</span> <span class="nf">init_hyperparams</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Evaluate problem setup and return hyperparameter dictionary.</span>
@@ -585,6 +615,7 @@
         <span class="n">hyperparams</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">n_hyp</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">modelinit</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hypernames</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">datatype</span><span class="p">,</span> <span class="n">composite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">composites</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">hypernames</span> <span class="o">=</span> <span class="n">composite</span><span class="o">.</span><span class="n">get_hypernames</span><span class="p">()</span>
 
@@ -623,7 +654,7 @@
                         <span class="n">modelinit</span> <span class="o">=</span> <span class="kc">False</span>
 
                     <span class="n">n_hyp</span> <span class="o">+=</span> <span class="n">dimension</span>
-
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_hypernames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hyperpar</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                         <span class="s1">&#39;not solving for </span><span class="si">%s</span><span class="s1">, got fixed at </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
@@ -637,7 +668,7 @@
                 <span class="s1">&#39; covered by datasets/datatypes.&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">modelinit</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Optimization for </span><span class="si">%i</span><span class="s1"> hyperparemeters in total!&#39;</span><span class="p">,</span> <span class="n">n_hyp</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Optimization for </span><span class="si">%i</span><span class="s1"> hyperparameters in total!&#39;</span><span class="p">,</span> <span class="n">n_hyp</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">hyperparams</span> <span class="o">=</span> <span class="n">hyperparams</span>
 
@@ -668,8 +699,8 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        point : :func:`pymc3.Point`</span>
-<span class="sd">            Dictionary with model parameters, for which the covariance matrixes</span>
-<span class="sd">            with respect to velocity model uncertainties are calculated</span>
+<span class="sd">            Dictionary with model parameters, for which the sources are</span>
+<span class="sd">            updated</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">composite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">composites</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">composites</span><span class="p">[</span><span class="n">composite</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">point2sources</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
@@ -810,9 +841,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
 
-        <span class="c1"># updating source objects with values in bounds</span>
-        <span class="n">point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_random_point</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">point2sources</span><span class="p">(</span><span class="n">point</span><span class="p">)</span></div>
+        <span class="c1"># updating source objects with test-value in bounds</span>
+        <span class="n">tpoint</span> <span class="o">=</span> <span class="n">pc</span><span class="o">.</span><span class="n">get_test_point</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">point2sources</span><span class="p">(</span><span class="n">tpoint</span><span class="p">)</span></div>
 
 
 <span class="k">class</span> <span class="nc">InterseismicOptimizer</span><span class="p">(</span><span class="n">SourceOptimizer</span><span class="p">):</span>
@@ -921,8 +952,10 @@
 <span class="sd">    -------</span>
 <span class="sd">    problem : :class:`Problem`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">config</span> <span class="o">=</span> <span class="n">bconfig</span><span class="o">.</span><span class="n">load_config</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">bconfig</span><span class="o">.</span><span class="n">load_config</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ArgumentError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ConfigNeedsUpdatingError</span><span class="p">()</span>
 
     <span class="n">pc</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">problem_config</span>
 

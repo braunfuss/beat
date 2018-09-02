@@ -154,6 +154,7 @@ according to other case studies is described <a class="reference external" href=
 <div class="highlight-default"><div class="highlight"><pre><span></span>- !beat.WaveformFitConfig
   include: true
   name: any_P
+  blacklist: []
   channels: [Z]
   filterer: !beat.heart.Filter
     lower_corner: 0.01
@@ -172,6 +173,7 @@ according to other case studies is described <a class="reference external" href=
 <div class="highlight-default"><div class="highlight"><pre><span></span>- !beat.WaveformFitConfig
   include: true
   name: slowest
+  blacklist: []
   channels: [Z]
   filterer: !beat.heart.Filter
     lower_corner: 0.001
@@ -197,6 +199,7 @@ Your seismic_config within the $project_directory/config_geometry.yaml should lo
   - !beat.WaveformFitConfig
     include: true
     name: any_P
+    blacklist: []
     channels: [Z]
     filterer: !beat.heart.Filter
       lower_corner: 0.01
@@ -212,6 +215,7 @@ Your seismic_config within the $project_directory/config_geometry.yaml should lo
   - !beat.WaveformFitConfig
     include: true
     name: slowest
+    blacklist: []
     channels: [Z]
     filterer: !beat.heart.Filter
       lower_corner: 0.001
@@ -454,7 +458,7 @@ in the Prior distributions of the config file. Here, these values got already se
 <blockquote>
 <div><img alt="_images/FullMT_stage_-1_max.png" src="_images/FullMT_stage_-1_max.png" />
 <p>The vertical black lines are the true values and the vertical red lines are the maximum likelihood values.
-We see that the true solution is not comprised within the marginals of all parameters. This may have several reasons I will not go in to detail for now.</p>
+We see that the true solution is not comprised within the marginals of all parameters. This may have several reasons. In the next section we will discuss and investigate the influence of the noise characteristics.</p>
 <p>To get an image of parameter correlations (including the true reference value in red) of moment tensor components, the location and the magnitude. In the $beat_models run:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">beat</span> <span class="n">plot</span> <span class="n">FullMT</span> <span class="n">correlation_hist</span> <span class="o">--</span><span class="n">reference</span> <span class="o">--</span><span class="n">stage_number</span><span class="o">=-</span><span class="mi">1</span> <span class="o">--</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span> <span class="o">--</span><span class="n">varnames</span><span class="o">=</span><span class="s1">&#39;mee, med, mdd, mnn, mnd, mne, north_shift, east_shift, magnitude&#39;</span>
 </pre></div>
@@ -468,6 +472,41 @@ We see that the true solution is not comprised within the marginals of all param
 The red dot and the vertical red lines show the true values of the target source in the kde plots and histograms, respectively.</p>
 <p>The ‘varnames’ option may take any parameter that has been optimized for. For example one might als want to try –varnames=’duration, time, magnitude, north_shift, east_shift’.
 If it is not specified all sampled parameters are taken into account.</p>
+</div>
+<div class="section" id="seismic-noise-estimation">
+<h3>Seismic noise estimation<a class="headerlink" href="#seismic-noise-estimation" title="Permalink to this headline">¶</a></h3>
+<p>If we have poor knowledge of the noise in the data, the model parameter estimates may be poor and the true parameters are not covered by the distributions (as was the case above). In the previous run we used a data covariance matrix of the form of an identity matrix with only the noise variance in the diagonal. Under the seismic_config you find the configuration for the noise analyser, which looks like that:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>noise_estimator: !beat.SeismicNoiseAnalyserConfig
+  structure: identity
+  pre_arrival_time: 3.0
+</pre></div>
+</div>
+<p>The “structure” argument refers to the structure of the covariance matrix that is estimated on the data, prior to the synthetic P-wave arrival. The argument “pre_arrival_time” refers to the time before the P-wave arrival. 3.0 means that the noise is estimated on each data trace up to 3. seconds before the synthetic P-wave arrival.
+Obviously, in the previos run the white-noise assumption was not working well. So we may set the structure to “exponential” to also estimate noise covariances depending on the shortest wavelength in the data, following <a class="reference internal" href="#duputel2012" id="id1">[Duputel2012]</a>.</p>
+<dl class="docutils">
+<dt>Other options are:</dt>
+<dd><ul class="first last simple">
+<li>“import” to use the covariance matrixes that have been imported with the data</li>
+<li>“non-toeplitz” to estimate non-stationary, correlated noise on the residuals following <a class="reference internal" href="#dettmer2007" id="id2">[Dettmer2007]</a>
+in this case the values from the priors and hypers “testvalues” are used as reference to calculate the residuals</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="references">
+<h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
+<table class="docutils citation" frame="void" id="dettmer2007" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[Dettmer2007]</a></td><td>Dettmer, Jan and Dosso, Stan E. and Holland, Charles W., Uncertainty estimation in seismo-acoustic reflection travel time inversion, The Journal of the Acoustical Society of America, DOI:10.1121/1.2736514</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="duputel2012" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Duputel2012]</a></td><td>Duputel, Zacharie and Rivera, Luis and Fukahata, Yukitoshi and Kanamori, Hiroo, Uncertainty estimations for seismic source inversions, Geophysical Journal International, DOI:10.1111/j.1365-246X.2012.05554.x</td></tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
@@ -495,6 +534,8 @@ If it is not specified all sampled parameters are taken into account.</p>
 <li class="toctree-l3"><a class="reference internal" href="#restarting-sampling">Restarting sampling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#summarize-the-results">Summarize the results</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plotting">Plotting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#seismic-noise-estimation">Seismic noise estimation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
 </ul>

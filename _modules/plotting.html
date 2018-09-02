@@ -658,6 +658,15 @@
         <span class="n">edgecolors</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="n">colim</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">colim</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">format_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Removes box top, left and right.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="geodetic_fits"><a class="viewcode-back" href="../api.html#plotting.geodetic_fits">[docs]</a><span class="k">def</span> <span class="nf">geodetic_fits</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">stage</span><span class="p">,</span> <span class="n">plot_options</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot geodetic data, synthetics and residuals.</span>
@@ -1197,9 +1206,9 @@
                 <span class="n">tap_color_edge</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.80</span><span class="p">)</span>
                 <span class="n">tap_color_fill</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.90</span><span class="p">)</span>
 
-                <span class="n">plot_taper</span><span class="p">(</span>
-                    <span class="n">axes2</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">processed_obs</span><span class="o">.</span><span class="n">get_xdata</span><span class="p">(),</span> <span class="n">result</span><span class="o">.</span><span class="n">taper</span><span class="p">,</span>
-                    <span class="n">fc</span><span class="o">=</span><span class="n">tap_color_fill</span><span class="p">,</span> <span class="n">ec</span><span class="o">=</span><span class="n">tap_color_edge</span><span class="p">)</span>
+                <span class="c1"># plot_taper(</span>
+                <span class="c1">#    axes2, result.processed_obs.get_xdata(), result.taper,</span>
+                <span class="c1">#    fc=tap_color_fill, ec=tap_color_edge)</span>
 
                 <span class="n">obs_color</span> <span class="o">=</span> <span class="n">scolor</span><span class="p">(</span><span class="s1">&#39;aluminium5&#39;</span><span class="p">)</span>
                 <span class="n">obs_color_light</span> <span class="o">=</span> <span class="n">light</span><span class="p">(</span><span class="n">obs_color</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
@@ -1521,6 +1530,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">v</span> <span class="o">=</span> <span class="n">varnames</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="n">color</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">input_color</span><span class="p">)</span>
+
             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">trace</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span>
                     <span class="n">v</span><span class="p">,</span> <span class="n">combine</span><span class="o">=</span><span class="n">combined</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="n">chains</span><span class="p">,</span> <span class="n">squeeze</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                 <span class="n">d</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
@@ -1571,12 +1581,16 @@
                             <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="s1">&#39;priors: </span><span class="si">%3.3f</span><span class="s1">, </span><span class="si">%3.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
                                 <span class="n">param</span><span class="o">.</span><span class="n">lower</span><span class="p">,</span> <span class="n">param</span><span class="o">.</span><span class="n">upper</span><span class="p">)</span>
                     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                        <span class="n">title</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">plot_units</span><span class="p">[</span><span class="n">hypername</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">title</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">v</span><span class="p">]))</span>
+                        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                            <span class="n">title</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">plot_units</span><span class="p">[</span><span class="n">hypername</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span>
 
                     <span class="n">axs</span><span class="p">[</span><span class="n">rowi</span><span class="p">,</span> <span class="n">coli</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
                     <span class="n">axs</span><span class="p">[</span><span class="n">rowi</span><span class="p">,</span> <span class="n">coli</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
                     <span class="n">axs</span><span class="p">[</span><span class="n">rowi</span><span class="p">,</span> <span class="n">coli</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
                     <span class="n">axs</span><span class="p">[</span><span class="n">rowi</span><span class="p">,</span> <span class="n">coli</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([])</span>
+                    <span class="n">format_axes</span><span class="p">(</span><span class="n">axs</span><span class="p">[</span><span class="n">rowi</span><span class="p">,</span> <span class="n">coli</span><span class="p">])</span>
     <span class="c1">#                axs[rowi, coli].set_ylabel(&quot;Frequency&quot;)</span>
 
                     <span class="k">if</span> <span class="n">lines</span><span class="p">:</span>
@@ -1676,11 +1690,10 @@
 
     <span class="k">if</span> <span class="n">hypers</span><span class="p">:</span>
         <span class="n">sc</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">hyper_sampler_config</span>
-        <span class="n">varnames</span> <span class="o">=</span> <span class="n">pc</span><span class="o">.</span><span class="n">hyperparameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;like&#39;</span><span class="p">]</span>
+        <span class="n">varnames</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">hypernames</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;like&#39;</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">sc</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sampler_config</span>
-        <span class="n">varnames</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">varnames</span> <span class="o">+</span> \
-            <span class="n">pc</span><span class="o">.</span><span class="n">hyperparameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;like&#39;</span><span class="p">]</span>
+        <span class="n">varnames</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">varnames</span> <span class="o">+</span> <span class="n">problem</span><span class="o">.</span><span class="n">hypernames</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;like&#39;</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">po</span><span class="o">.</span><span class="n">varnames</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">varnames</span> <span class="o">=</span> <span class="n">po</span><span class="o">.</span><span class="n">varnames</span>
@@ -1770,10 +1783,10 @@
 
     <span class="k">if</span> <span class="n">hypers</span><span class="p">:</span>
         <span class="n">sc</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">hyper_sampler_config</span>
-        <span class="n">varnames</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">problem_config</span><span class="o">.</span><span class="n">hyperparameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">varnames</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">hypernames</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">sc</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sampler_config</span>
-        <span class="n">varnames</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">varnames</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;like&#39;</span><span class="p">]</span>
+        <span class="n">varnames</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">varnames</span> <span class="o">+</span> <span class="n">problem</span><span class="o">.</span><span class="n">hypernames</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;like&#39;</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">po</span><span class="o">.</span><span class="n">varnames</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">varnames</span> <span class="o">=</span> <span class="n">po</span><span class="o">.</span><span class="n">varnames</span>
