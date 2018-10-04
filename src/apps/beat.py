@@ -11,7 +11,7 @@ import shutil
 
 from optparse import OptionParser
 
-from beat import heart, config, utility, inputf, plotting
+from beat import heart, config, utility, inputf, backend
 from beat.models import load_model, Stage, estimate_hypers, sample
 from beat.backend import TextChain
 from beat.sources import MTSourceWithMagnitude
@@ -439,7 +439,7 @@ def command_import(args):
             stage.load_results(
                 model=problem.model, stage_number=-1, load='full')
 
-            point = plotting.get_result_point(stage, problem.config, 'max')
+            point = backend.get_result_point(stage, problem.config, 'max')
             n_sources = problem.config.problem_config.n_sources
 
             source_params = problem.config.problem_config.priors.keys()
@@ -991,7 +991,8 @@ def command_build_gfs(args):
 def command_plot(args):
 
     command_str = 'plot'
-
+    from beat import plotting
+    
     def setup(parser):
 
         parser.add_option(
